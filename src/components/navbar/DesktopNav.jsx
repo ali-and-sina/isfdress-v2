@@ -34,7 +34,7 @@ export default function DesktopNav({ activeMegaMenu, setActiveMegaMenu }) {
       </div>
 
       {/* second row */}
-      <nav className="flex h-12  items-center justify-around divide-x divide-gray-200">
+      <nav className="flex h-12  items-center justify-around divide-x divide-gray-200 px-12 ">
         {navbarItems.map((item) => (
           <div
             key={item.id}
