@@ -33,8 +33,13 @@ export const productCategories = [
   },
 ];
 
-// each category with its subcategories nested in — useful for the mega menu
+// each category with its subcategories nested in — useful for the mega menu.
+// each subcategory also gets `categorySlug` attached, since nav links need
+// BOTH slugs to build a nested URL like /productCategory/women/women-skirt
 export const categoriesWithSubCategories = productCategories.map((cat) => ({
   ...cat,
-  subCategories: getSubCategoriesByCategoryId(cat.id),
+  subCategories: getSubCategoriesByCategoryId(cat.id).map((sub) => ({
+    ...sub,
+    categorySlug: cat.slug,
+  })),
 }));
