@@ -8,29 +8,38 @@ export const productCategories = [
     name: "زنانه",
     slug: "women",
     description: "پوشاک زنانه شامل پیراهن، دامن، مانتو و بیشتر",
+    image: "https://i.imgur.com/Wv2KTsf.jpeg",
   },
   {
     id: 2,
     name: "مردانه",
     slug: "men",
     description: "پوشاک مردانه شامل پیراهن، شلوار، کت و بیشتر",
+    image: "https://i.imgur.com/76HAxcA.jpeg",
   },
   {
     id: 3,
     name: "بچگانه",
     slug: "kids",
     description: "پوشاک نوزاد، دخترانه و پسرانه",
+    image: "https://i.imgur.com/cBuLvBi.jpeg",
   },
   {
     id: 4,
     name: "اکسسوری",
     slug: "accessories",
     description: "کیف، کفش، جواهرات و شال و روسری",
+    image: "https://i.imgur.com/N1GkCIR.jpeg",
   },
 ];
 
-// each category with its subcategories nested in — useful for the mega menu
+// each category with its subcategories nested in — useful for the mega menu.
+// each subcategory also gets `categorySlug` attached, since nav links need
+// BOTH slugs to build a nested URL like /productCategory/women/women-skirt
 export const categoriesWithSubCategories = productCategories.map((cat) => ({
   ...cat,
-  subCategories: getSubCategoriesByCategoryId(cat.id),
+  subCategories: getSubCategoriesByCategoryId(cat.id).map((sub) => ({
+    ...sub,
+    categorySlug: cat.slug,
+  })),
 }));

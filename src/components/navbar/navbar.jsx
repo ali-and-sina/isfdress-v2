@@ -13,7 +13,7 @@ export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <header className="border-b border-rose-100 bg-white ">
+    <header className="relative z-50 border-b border-rose-100 bg-white ">
       <DesktopNav
         activeMegaMenu={activeMegaMenu}
         setActiveMegaMenu={setActiveMegaMenu}
