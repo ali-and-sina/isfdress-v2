@@ -1,3 +1,9 @@
+import SliderHero from "@/components/homepage/SliderHero";
+
 export default function HomePage() {
-  return <div></div>;
+  return (
+    <div>
+      <SliderHero />
+    </div>
+  );
 }

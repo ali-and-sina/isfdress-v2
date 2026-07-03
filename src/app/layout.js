@@ -10,7 +10,7 @@ const vazirmatn = localFont({
 });
 
 export const metadata = {
-  title: "watermeter company",
+  title: "LUXE Shopping Website",
   description: "سایت من",
 };
 
