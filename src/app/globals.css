@@ -6,6 +6,15 @@
   }
 }
 
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
 @keyframes float {
   0% {
     transform: translate(0, 0) rotate(0deg) scale(1);

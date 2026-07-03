@@ -97,7 +97,7 @@ export const products = [
       image: "https://i.imgur.com/qNOjJje.jpeg",
     },
     images: [
-      "https://i.imgur.com/Wv2KTsf.jpeg",
+    ``  "https://i.imgur.com/Wv2KTsf.jpeg",
       "https://i.imgur.com/76HAxcA.jpeg",
       "https://i.imgur.com/cBuLvBi.jpeg",
       "https://i.imgur.com/N1GkCIR.jpeg",
