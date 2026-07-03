@@ -60,7 +60,7 @@ export default function MobileDrawer({ mobileMenuOpen, closeDrawer }) {
               {activeItem.megaMenuItems?.map((sub) => (
                 <Link
                   key={sub.id}
-                  href={`/productCategory/${sub.slug}`}
+                  href={`/productCategory/${sub.categorySlug}/${sub.slug}`}
                   onClick={resetAndClose}
                   className="block rounded-lg px-3 py-2 hover:bg-rose-50"
                 >
