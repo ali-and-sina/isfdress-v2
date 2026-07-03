@@ -9,7 +9,7 @@ export default function DesktopNav({ activeMegaMenu, setActiveMegaMenu }) {
   return (
     <div className="hidden md:block">
       {/* top row */}
-      <div className="flex h-16 items-center">
+      <div className="flex h-16 items-center bg-rose-50 px-2.5">
         {/* Right section */}
         <div className="flex items-center gap-5">
           <Logo />
@@ -34,17 +34,22 @@ export default function DesktopNav({ activeMegaMenu, setActiveMegaMenu }) {
       </div>
 
       {/* second row */}
-      <nav className="flex h-12 items-center gap-6">
+      <nav className="flex h-12  items-center justify-around divide-x divide-gray-200 px-12 ">
         {navbarItems.map((item) => (
           <div
             key={item.id}
-            className="relative flex h-full items-center"
+            className="group relative flex h-full items-center px-8 cursor-pointer"
             onMouseEnter={() =>
               item.megaMenuItems && setActiveMegaMenu(item.id)
             }
             onMouseLeave={() => setActiveMegaMenu(null)}
           >
-            <Link href={item.slug}>{item.title}</Link>
+            <Link
+              href={item.slug}
+              className="relative py-2 text-sm font-medium text-gray-700 transition-colors duration-200 group-hover:text-rose-600 after:absolute after:bottom-0 after:right-0 after:h-[2px] after:w-0 after:bg-rose-500 after:transition-all after:duration-300 group-hover:after:w-full"
+            >
+              {item.title}
+            </Link>
 
             {activeMegaMenu === item.id && item.megaMenuItems && (
               <MegaMenu items={item.megaMenuItems} />
