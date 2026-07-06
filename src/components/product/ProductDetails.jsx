@@ -4,6 +4,10 @@ import { productCategories } from "@/data/categories";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { subCategories } from "@/data/subcategories";
+import AddToCartButton from "../ui/AddToCartButton";
+import SimilarProducts from "./SimilarProducts";
+import ProductReviews from "./ProductReviews";
 
 const formatPrice = (price) => {
   return new Intl.NumberFormat("fa-IR").format(price) + " تومان";
@@ -45,15 +49,15 @@ export default function ProductDetails({ product }) {
   const category = productCategories.find(
     (category) => category.id === product.categoryId,
   );
-  console.log(category);
+  const subCategory = subCategories.find(
+    (subCat) => subCat.id === product.subCategoryId,
+  );
 
   useEffect(() => {
     setSelectedImage(0);
   }, [selectedColor, selectedSize]);
 
-  const isAdded = cartQuantity > 0;
-
-  const handleAddToCart = () => {
+  function handleAddToCart() {
     if (product.sizes.length > 0 && !selectedSize) {
       setError("لطفاً سایز مورد نظر را انتخاب کنید");
       return;
@@ -64,7 +68,7 @@ export default function ProductDetails({ product }) {
     }
     setError(null);
     setCartQuantity(1);
-  };
+  }
 
   const increment = () => setCartQuantity((prev) => Math.min(prev + 1, 10));
   const decrement = () => {
@@ -125,6 +129,13 @@ export default function ProductDetails({ product }) {
             className="hover:text-neutral-600 transition-colors cursor-pointer"
           >
             {category.name}
+          </Link>
+          <span className="text-neutral-300 shrink-0">/</span>
+          <Link
+            href={`/productCategory/${category.slug}/${subCategory.slug}`}
+            className="hover:text-neutral-600 transition-colors cursor-pointer"
+          >
+            {subCategory.name}
           </Link>
           <span className="text-neutral-300 shrink-0">/</span>
           <span className="text-neutral-600 truncate">{product.name}</span>
@@ -317,80 +328,12 @@ export default function ProductDetails({ product }) {
               </p>
             )}
 
-            <div className="pt-4">
-              {!isAdded ? (
-                <button
-                  onClick={handleAddToCart}
-                  disabled={!product.inStock}
-                  className="w-full px-6 py-3.5 bg-[#e8c4a8] text-white rounded-xl hover:bg-[#d4a98a] active:scale-[0.98] transition-all duration-300 text-sm uppercase tracking-widest font-medium disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-                >
-                  {product.inStock ? "افزودن به سبد خرید" : "ناموجود"}
-                </button>
-              ) : (
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center border border-neutral-200 rounded-xl overflow-hidden">
-                    <button
-                      onClick={decrement}
-                      className="w-10 h-10 flex items-center justify-center text-neutral-500 hover:bg-[#fdf6f0] transition-colors cursor-pointer"
-                    >
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={1.5}
-                          d="M20 12H4"
-                        />
-                      </svg>
-                    </button>
-                    <span className="w-10 h-10 flex items-center justify-center text-sm font-medium text-neutral-700 bg-white">
-                      {cartQuantity}
-                    </span>
-                    <button
-                      onClick={increment}
-                      className="w-10 h-10 flex items-center justify-center text-neutral-500 hover:bg-[#fdf6f0] transition-colors cursor-pointer"
-                    >
-                      <svg
-                        className="w-4 h-4"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={1.5}
-                          d="M12 4v16m8-8H4"
-                        />
-                      </svg>
-                    </button>
-                  </div>
-                  <button
-                    onClick={removeFromCart}
-                    className="w-10 h-10 flex items-center justify-center text-neutral-400 hover:text-rose-400 hover:bg-rose-50 rounded-xl transition-colors cursor-pointer"
-                    title="حذف از سبد خرید"
-                  >
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={1.5}
-                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                      />
-                    </svg>
-                  </button>
-                </div>
-              )}
-            </div>
+            <AddToCartButton
+              product={product}
+              onAddToCart={handleAddToCart}
+              cartQuantity={cartQuantity}
+              setCartQuantity={setCartQuantity}
+            />
 
             {/* توضیحات بازشونده */}
             <div className="border-t border-[#f0e0d0] pt-6 space-y-4 mt-4">
@@ -470,12 +413,15 @@ export default function ProductDetails({ product }) {
             </div>
           </div>
         </div>
+        <SimilarProducts
+          categoryId={product.categoryId}
+          currentId={product.id}
+        />
+        <ProductReviews />
       </main>
 
-      {/* لایت‌باکس گالری */}
       {galleryOpen && (
         <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex flex-col">
-          {/* هدر لایت‌باکس */}
           <div className="flex items-center justify-between p-4 text-white">
             <span className="text-sm font-light">
               {galleryIndex + 1} / {product.images.length}
