@@ -1,12 +1,23 @@
 import ProductDetails from "@/components/product/ProductDetails";
-import { products } from "@/data/products";
+import { getProducts } from "@/lib/products";
 
-const formatPrice = (price) => {
-  return new Intl.NumberFormat("fa-IR").format(price) + " تومان";
-};
+export async function generateMetadata({ params }) {
+  const { slug } = await params;
+  const products = await getProducts();
+  const { name } = products.find((product) => product.slug === slug);
+  return { title: `فروشگاه اینترنتی لاکس | ${name}` };
+}
+export async function generateStaticParams() {
+  const products = await getProducts();
+  return products.map((product) => ({
+    slug: product.slug,
+  }));
+}
 
 export default async function ProductPage({ params }) {
   const { slug } = await params;
+  const products = await getProducts();
+  console.log(products);
   const product = products.find((product) => product.slug === slug);
   return <ProductDetails product={product} />;
 }

@@ -4,11 +4,18 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { reviews } from "@/data/reviews";
-import { formatNumber, formatPrice } from "@/lib/products";
+import { formatNumber } from "@/lib/products";
+
+// Shared date parser so every part of the component reads "YYYY/MM/DD"
+// the same way — new Date("1403/04/15") is NOT reliable across browsers,
+// so we parse the parts manually and build the Date ourselves.
+function parseDate(dateStr) {
+  const [y, m, d] = dateStr.split("/").map(Number);
+  return new Date(y, m - 1, d);
+}
 
 function relativeDate(dateStr) {
-  const [y, m, d] = dateStr.split("/").map(Number);
-  const then = new Date(y, m - 1, d);
+  const then = parseDate(dateStr);
   const now = new Date();
   const diffDays = Math.floor((now - then) / (1000 * 60 * 60 * 24));
   if (diffDays < 1) return "امروز";
@@ -18,22 +25,25 @@ function relativeDate(dateStr) {
   return dateStr;
 }
 
-export default function ProductReviews({ isLoggedIn = false }) {
+export default function ProductReviews({
+  isLoggedIn = false,
+  productId = "default",
+}) {
   const router = useRouter();
   const [sortBy, setSortBy] = useState("newest");
   const [expanded, setExpanded] = useState(false);
-  const [userVotes, setUserVotes] = useState(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("reviewVotes");
-      return stored ? JSON.parse(stored) : {};
-    }
-    return {};
-  });
+
+  const [userVotes, setUserVotes] = useState({});
+
+  const storageKey = `reviewVotes:${productId}`;
 
   const totalReviews = reviews.length;
   const averageRating =
-    reviews.map((review) => review.rating).reduce((acc, cur) => acc + cur, 0) /
-    reviews.length;
+    totalReviews > 0
+      ? reviews
+          .map((review) => review.rating)
+          .reduce((acc, cur) => acc + cur, 0) / totalReviews
+      : 0;
   const ratingBreakdown = reviews.reduce(
     (acc, review) => {
       acc[review.rating] = (acc[review.rating] || 0) + 1;
@@ -43,17 +53,13 @@ export default function ProductReviews({ isLoggedIn = false }) {
   );
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("reviewVotes");
-      if (stored) setUserVotes(JSON.parse(stored));
-    }
-  }, []);
+    const stored = localStorage.getItem(storageKey);
+    if (stored) setUserVotes(JSON.parse(stored));
+  }, [storageKey]);
 
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem("reviewVotes", JSON.stringify(userVotes));
-    }
-  }, [userVotes]);
+    localStorage.setItem(storageKey, JSON.stringify(userVotes));
+  }, [storageKey, userVotes]);
 
   function handleVote(reviewId, type) {
     setUserVotes((prev) => {
@@ -76,7 +82,7 @@ export default function ProductReviews({ isLoggedIn = false }) {
   }
 
   const sortedReviews = [...reviews].sort((a, b) => {
-    if (sortBy === "newest") return new Date(b.date) - new Date(a.date);
+    if (sortBy === "newest") return parseDate(b.date) - parseDate(a.date);
     if (sortBy === "helpful")
       return b.likes - b.dislikes - (a.likes - a.dislikes);
     if (sortBy === "highest") return b.rating - a.rating;
@@ -127,33 +133,31 @@ export default function ProductReviews({ isLoggedIn = false }) {
               </div>
             </div>
             <div className="space-y-2.5">
-              {Object.keys(ratingBreakdown)
-                .reverse()
-                .map((star) => (
-                  <div key={star} className="flex items-center gap-3">
-                    <span className="text-xs text-neutral-500 w-4 text-right">
-                      {star}
-                    </span>
-                    <svg
-                      className="w-3.5 h-3.5 text-[#e8c4a8] shrink-0"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
-                    <div className="flex-1 h-1.5 bg-neutral-200 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-[#e8c4a8] rounded-full transition-all duration-500"
-                        style={{
-                          width: `${(ratingBreakdown[star] / totalReviews) * 100}%`,
-                        }}
-                      />
-                    </div>
-                    <span className="text-xs text-neutral-400 w-8 text-left">
-                      {ratingBreakdown[star]}
-                    </span>
+              {[5, 4, 3, 2, 1].map((star) => (
+                <div key={star} className="flex items-center gap-3">
+                  <span className="text-xs text-neutral-500 w-4 text-right">
+                    {star}
+                  </span>
+                  <svg
+                    className="w-3.5 h-3.5 text-[#e8c4a8] shrink-0"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                  <div className="flex-1 h-1.5 bg-neutral-200 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-[#e8c4a8] rounded-full transition-all duration-500"
+                      style={{
+                        width: `${totalReviews > 0 ? (ratingBreakdown[star] / totalReviews) * 100 : 0}%`,
+                      }}
+                    />
                   </div>
-                ))}
+                  <span className="text-xs text-neutral-400 w-8 text-left">
+                    {ratingBreakdown[star]}
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -167,6 +171,7 @@ export default function ProductReviews({ isLoggedIn = false }) {
               { key: "newest", label: "جدیدترین" },
               { key: "helpful", label: "مفیدترین" },
               { key: "highest", label: "بالاترین امتیاز" },
+              { key: "lowest", label: "پایین‌ترین امتیاز" },
             ].map((opt) => (
               <button
                 key={opt.key}
@@ -181,6 +186,12 @@ export default function ProductReviews({ isLoggedIn = false }) {
               </button>
             ))}
           </div>
+
+          {totalReviews === 0 && (
+            <p className="text-sm text-neutral-400 font-light">
+              هنوز نظری ثبت نشده است.
+            </p>
+          )}
 
           {displayedReviews.map((review) => {
             const currentVote = userVotes[review.id];
@@ -253,7 +264,7 @@ export default function ProductReviews({ isLoggedIn = false }) {
                             d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"
                           />
                         </svg>
-                        <span>مفید بود ({likeCount})</span>
+                        <span>مفید بود ({formatNumber(likeCount)})</span>
                       </button>
                       <button
                         onClick={() => handleVote(review.id, "dislike")}
@@ -278,7 +289,7 @@ export default function ProductReviews({ isLoggedIn = false }) {
                             d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"
                           />
                         </svg>
-                        <span>مفید نبود ({dislikeCount})</span>
+                        <span>مفید نبود ({formatNumber(dislikeCount)})</span>
                       </button>
                     </div>
                   </div>

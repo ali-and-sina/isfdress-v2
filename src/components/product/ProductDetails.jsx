@@ -8,10 +8,7 @@ import { subCategories } from "@/data/subcategories";
 import AddToCartButton from "../ui/AddToCartButton";
 import SimilarProducts from "./SimilarProducts";
 import ProductReviews from "./ProductReviews";
-
-const formatPrice = (price) => {
-  return new Intl.NumberFormat("fa-IR").format(price) + " تومان";
-};
+import { formatPrice } from "@/lib/products";
 
 const colorMap = {
   قرمز: "#dc2626",
@@ -335,7 +332,6 @@ export default function ProductDetails({ product }) {
               setCartQuantity={setCartQuantity}
             />
 
-            {/* توضیحات بازشونده */}
             <div className="border-t border-[#f0e0d0] pt-6 space-y-4 mt-4">
               <details className="group" open>
                 <summary className="flex items-center justify-between cursor-pointer text-sm font-medium text-neutral-700 hover:text-[#b08060] transition-colors list-none">
