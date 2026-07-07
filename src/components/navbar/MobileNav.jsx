@@ -1,6 +1,7 @@
 "use client";
 
 import Logo from "./Logo";
+import SearchBar from "./SearchBar";
 
 export default function MobileNav({ openDrawer }) {
   return (
@@ -25,11 +26,7 @@ export default function MobileNav({ openDrawer }) {
       </div>
 
       <div className="pb-3">
-        <input
-          type="text"
-          placeholder="جستجوی لباس، اکسسوری و ..."
-          className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2"
-        />
+        <SearchBar />
       </div>
     </div>
   );

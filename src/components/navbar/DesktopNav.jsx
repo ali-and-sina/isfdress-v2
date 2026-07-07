@@ -4,6 +4,7 @@ import Link from "next/link";
 import MegaMenu from "./MegaMenu";
 import { navbarItems } from "@/data/navbarData";
 import Logo from "./Logo";
+import SearchBar from "./SearchBar";
 
 export default function DesktopNav({ activeMegaMenu, setActiveMegaMenu }) {
   return (
@@ -15,11 +16,7 @@ export default function DesktopNav({ activeMegaMenu, setActiveMegaMenu }) {
           <Logo />
 
           <div className="w-[450px]">
-            <input
-              type="text"
-              placeholder="جستجوی لباس، اکسسوری و ..."
-              className="w-full rounded-xl border border-rose-200 bg-white px-4 py-2"
-            />
+            <SearchBar />
           </div>
         </div>
 
