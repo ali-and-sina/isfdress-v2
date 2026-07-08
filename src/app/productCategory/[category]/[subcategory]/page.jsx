@@ -11,15 +11,12 @@ import Pagination from "@/components/product/Pagination";
 import Breadcrumb from "@/components/product/Breadcrumb";
 
 export default async function SubCategoryPage({ params, searchParams }) {
-  const { category: categorySlug, subcategory: subCategorySlug } =
-    await params;
+  const { category: categorySlug, subcategory: subCategorySlug } = await params;
   const resolvedSearchParams = await searchParams;
 
   const category = productCategories.find((c) => c.slug === categorySlug);
   if (!category) notFound();
 
-  // make sure the subcategory actually belongs to this category —
-  // prevents mismatched URLs like /productCategory/men/women-skirt from "working"
   const subCategory = subCategories.find(
     (s) => s.slug === subCategorySlug && s.categoryId === category.id
   );

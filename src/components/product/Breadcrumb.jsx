@@ -1,7 +1,5 @@
 import Link from "next/link";
 
-// usage: <Breadcrumb items={[{ name: "زنانه", href: "/productCategory/women" }, { name: "دامن" }]} />
-// the last item usually has no href — it's the current page, not a link
 export default function Breadcrumb({ items }) {
   return (
     <nav className="flex flex-wrap items-center gap-1 text-sm text-gray-500">
