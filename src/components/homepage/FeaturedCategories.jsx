@@ -11,7 +11,7 @@ export default function FeaturedCategories() {
         {categoriesWithSubCategories.map((cat) => (
           <Link
             key={cat.id}
-            href={`/category/${cat.slug}`}
+            href={`/productCategory/${cat.slug}`}
             className="group flex flex-col items-center justify-center p-8 md:p-10 bg-[#fdf6f0] hover:bg-[#f8ece0] rounded-2xl transition-all duration-500 hover:shadow-lg hover:shadow-[#e8d5c4]/20"
           >
             <img src={cat.image} alt={cat.name} />
