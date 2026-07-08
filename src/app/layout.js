@@ -10,7 +10,7 @@ const vazirmatn = localFont({
 });
 
 export const metadata = {
-  title: "LUXE Shopping Website",
+  title: "فروشگاه اینترنتی لاکس | خوش‌آمدید ",
   description: "سایت من",
 };
 
