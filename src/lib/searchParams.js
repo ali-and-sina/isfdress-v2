@@ -1,10 +1,3 @@
-// src/lib/searchParams.js
-
-/**
- * Merges `updates` into the current search params.
- * Pass null/undefined/"" as a value to REMOVE that key (e.g. clearing a filter).
- * Returns a query string (no leading "?").
- */
 export function buildSearchParams(currentParams, updates) {
   const params = new URLSearchParams(currentParams.toString());
 
