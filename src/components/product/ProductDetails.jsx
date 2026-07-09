@@ -40,7 +40,6 @@ export default function ProductDetails({ product }) {
     useCart();
   const item = items ? items.find((item) => item.id === product.id) : null;
 
-  console.log(item);
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedSize, setSelectedSize] = useState(null);
   const [cartQuantity, setCartQuantity] = useState(item?.quantity || 0);
@@ -55,12 +54,13 @@ export default function ProductDetails({ product }) {
   const subCategory = subCategories.find(
     (subCat) => subCat.id === product.subCategoryId,
   );
+
+  console.log(items.find((item) => item.selectedSize === selectedSize));
   const isAdded =
     cartQuantity > 0 &&
-    selectedSize === items.find((item) => item.selectedSize) &&
-    selectedColor === items.find((item) => item.selectedColor);
+    items.find((item) => item.selectedSize === selectedSize) &&
+    items.find((item) => item.selectedColor === selectedColor);
 
-  console.log(isAdded);
   useEffect(() => {
     setSelectedImage(0);
   }, [selectedColor, selectedSize]);
