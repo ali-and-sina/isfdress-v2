@@ -17,7 +17,7 @@ export async function generateStaticParams() {
 export default async function ProductPage({ params }) {
   const { slug } = await params;
   const products = await getProducts();
-  console.log(products);
+
   const product = products.find((product) => product.slug === slug);
   return <ProductDetails product={product} />;
 }
