@@ -9,6 +9,7 @@ import AddToCartButton from "../ui/AddToCartButton";
 import SimilarProducts from "./SimilarProducts";
 import ProductReviews from "./ProductReviews";
 import { formatPrice } from "@/lib/products";
+import { useCart } from "@/context/CartContext";
 
 const colorMap = {
   قرمز: "#dc2626",
@@ -35,11 +36,15 @@ const colorMap = {
 };
 
 export default function ProductDetails({ product }) {
+  const { addToCart, items, incrementItem, decrementItem, removeFromCart } =
+    useCart();
+  const item = items ? items.find((item) => item.id === product.id) : null;
+
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedSize, setSelectedSize] = useState(null);
+  const [cartQuantity, setCartQuantity] = useState(item?.quantity || 0);
   const [selectedColor, setSelectedColor] = useState(null);
   const [error, setError] = useState(null);
-  const [cartQuantity, setCartQuantity] = useState(0);
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [galleryIndex, setGalleryIndex] = useState(0);
 
@@ -49,6 +54,12 @@ export default function ProductDetails({ product }) {
   const subCategory = subCategories.find(
     (subCat) => subCat.id === product.subCategoryId,
   );
+
+  console.log(items.find((item) => item.selectedSize === selectedSize));
+  const isAdded =
+    cartQuantity > 0 &&
+    items.find((item) => item.selectedSize === selectedSize) &&
+    items.find((item) => item.selectedColor === selectedColor);
 
   useEffect(() => {
     setSelectedImage(0);
@@ -65,17 +76,28 @@ export default function ProductDetails({ product }) {
     }
     setError(null);
     setCartQuantity(1);
+    addToCart(product, 1, selectedSize, selectedColor);
   }
 
-  const increment = () => setCartQuantity((prev) => Math.min(prev + 1, 10));
+  const increment = () => {
+    setCartQuantity((prev) => Math.min(prev + 1, 10));
+    if (item) incrementItem(item.cartItemId);
+  };
   const decrement = () => {
-    if (cartQuantity === 1) {
-      setCartQuantity(0);
-    } else {
-      setCartQuantity((prev) => prev - 1);
+    if (item) {
+      if (item.quantity === 1) {
+        removeFromCart(item.cartItemId);
+        setCartQuantity(0);
+      } else {
+        decrementItem(item.cartItemId);
+        setCartQuantity((prev) => prev - 1);
+      }
     }
   };
-  const removeFromCart = () => setCartQuantity(0);
+  const deleteFromCart = () => {
+    setCartQuantity(0);
+    if (item) removeFromCart(item.cartItemId);
+  };
 
   const openGallery = (index) => {
     setGalleryIndex(index);
@@ -330,6 +352,10 @@ export default function ProductDetails({ product }) {
               onAddToCart={handleAddToCart}
               cartQuantity={cartQuantity}
               setCartQuantity={setCartQuantity}
+              omDeleteFromCart={deleteFromCart}
+              decrement={decrement}
+              increment={increment}
+              isAdded={isAdded}
             />
 
             <div className="border-t border-[#f0e0d0] pt-6 space-y-4 mt-4">
@@ -462,7 +488,7 @@ export default function ProductDetails({ product }) {
                 />
               </svg>
             </button>
-            <div className="relative w-full max-w-4xl aspect-[3/4] md:aspect-[4/3]">
+            <div className="relative w-full max-w-4xl aspect-3/4 md:aspect-4/3">
               <Image
                 src={product.images[galleryIndex]}
                 alt={`${product.name} ${galleryIndex + 1}`}
@@ -492,13 +518,12 @@ export default function ProductDetails({ product }) {
             </button>
           </div>
 
-          {/* تصاویر بندانگشتی لایت‌باکس */}
           <div className="flex justify-center gap-2 p-4 overflow-x-auto scrollbar-hide">
             {product.images.map((img, index) => (
               <button
                 key={index}
                 onClick={() => setGalleryIndex(index)}
-                className={`relative w-16 h-20 flex-shrink-0 rounded-lg overflow-hidden border-2 transition-all duration-300 cursor-pointer ${
+                className={`relative w-16 h-20 shrink-0 rounded-lg overflow-hidden border-2 transition-all duration-300 cursor-pointer ${
                   index === galleryIndex
                     ? "border-white"
                     : "border-white/30 hover:border-white/70 opacity-70 hover:opacity-100"

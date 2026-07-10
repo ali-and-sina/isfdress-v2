@@ -1,4 +1,3 @@
-// context/CartContext.js
 "use client";
 
 import { createContext, useContext, useReducer, useEffect } from "react";
@@ -13,7 +12,7 @@ function cartReducer(state, action) {
       const cartItemId = getCartItemId(
         action.product,
         action.selectedSize,
-        action.selectedColor
+        action.selectedColor,
       );
 
       const existing = state.find((i) => i.cartItemId === cartItemId);
@@ -22,7 +21,7 @@ function cartReducer(state, action) {
         return state.map((i) =>
           i.cartItemId === cartItemId
             ? { ...i, quantity: i.quantity + action.quantity }
-            : i
+            : i,
         );
       }
 
@@ -48,8 +47,26 @@ function cartReducer(state, action) {
       return state.map((i) =>
         i.cartItemId === action.cartItemId
           ? { ...i, quantity: action.quantity }
-          : i
+          : i,
       );
+
+    case "INCREMENT": {
+      return state.map((i) =>
+        i.cartItemId === action.cartItemId
+          ? { ...i, quantity: Math.min(i.quantity + 1, 10) }
+          : i,
+      );
+    }
+
+    case "DECREMENT": {
+      return state
+        .map((i) =>
+          i.cartItemId === action.cartItemId
+            ? { ...i, quantity: i.quantity - 1 }
+            : i,
+        )
+        .filter((i) => i.quantity > 0);
+    }
 
     case "CLEAR":
       return [];
@@ -86,7 +103,7 @@ export function CartProvider({ children }) {
     product,
     quantity = 1,
     selectedSize = null,
-    selectedColor = null
+    selectedColor = null,
   ) {
     dispatch({
       type: "ADD_ITEM",
@@ -105,12 +122,19 @@ export function CartProvider({ children }) {
     dispatch({ type: "UPDATE_QUANTITY", cartItemId, quantity });
   }
 
+  function incrementItem(cartItemId) {
+    dispatch({ type: "INCREMENT", cartItemId });
+  }
+
+  function decrementItem(cartItemId) {
+    dispatch({ type: "DECREMENT", cartItemId });
+  }
+
   function clearCart() {
     dispatch({ type: "CLEAR" });
   }
 
   const totalItems = items.reduce((sum, i) => sum + i.quantity, 0);
-
   const totalPrice = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
 
   return (
@@ -120,6 +144,8 @@ export function CartProvider({ children }) {
         addToCart,
         removeFromCart,
         updateQuantity,
+        incrementItem,
+        decrementItem,
         clearCart,
         totalItems,
         totalPrice,

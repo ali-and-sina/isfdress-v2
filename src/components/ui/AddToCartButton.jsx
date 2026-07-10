@@ -1,25 +1,15 @@
 "use client";
 
-import { useState } from "react";
-
 export default function AddToCartButton({
   product,
   onAddToCart,
   cartQuantity,
   setCartQuantity,
+  onDeleteFromCart,
+  increment,
+  decrement,
+  isAdded,
 }) {
-  const isAdded = cartQuantity > 0;
-
-  const increment = () => setCartQuantity((prev) => Math.min(prev + 1, 10));
-  const decrement = () => {
-    if (cartQuantity === 1) {
-      setCartQuantity(0);
-    } else {
-      setCartQuantity((prev) => prev - 1);
-    }
-  };
-  const removeFromCart = () => setCartQuantity(0);
-
   return (
     <div className="pt-4">
       {!isAdded ? (
@@ -74,7 +64,7 @@ export default function AddToCartButton({
             </button>
           </div>
           <button
-            onClick={removeFromCart}
+            onClick={onDeleteFromCart}
             className="w-10 h-10 flex items-center justify-center text-neutral-400 hover:text-rose-400 hover:bg-rose-50 rounded-xl transition-colors cursor-pointer"
             title="حذف از سبد خرید"
           >

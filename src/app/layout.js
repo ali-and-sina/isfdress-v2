@@ -1,6 +1,7 @@
 import Navbar from "@/components/navbar/navbar";
 import "./globals.css";
 import localFont from "next/font/local";
+import { CartProvider } from "@/context/CartContext";
 
 const vazirmatn = localFont({
   src: "../fonts/Vazirmatn[wght].woff2",
@@ -17,10 +18,12 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="fa" dir="rtl">
-      <body className={vazirmatn.className}>
-        <Navbar />
-        {children}
-      </body>
+      <CartProvider>
+        <body className={vazirmatn.className}>
+          <Navbar />
+          {children}
+        </body>
+      </CartProvider>
     </html>
   );
 }
