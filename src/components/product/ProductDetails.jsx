@@ -55,11 +55,14 @@ export default function ProductDetails({ product }) {
     (subCat) => subCat.id === product.subCategoryId,
   );
 
-  console.log(items.find((item) => item.selectedSize === selectedSize));
-  const isAdded =
-    cartQuantity > 0 &&
-    items.find((item) => item.selectedSize === selectedSize) &&
-    items.find((item) => item.selectedColor === selectedColor);
+  const currentCartItem = items.find(
+    (item) =>
+      item.id === product.id &&
+      item.selectedSize === selectedSize &&
+      item.selectedColor === selectedColor,
+  );
+
+  const isAdded = cartQuantity > 0 && !!currentCartItem;
 
   useEffect(() => {
     setSelectedImage(0);
