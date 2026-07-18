@@ -8,13 +8,17 @@ import { useForm } from "react-hook-form";
 import { useCart } from "@/context/CartContext";
 import { formatPrice } from "@/lib/products";
 import { auth } from "@/lib/auth";
+import { useSession } from "next-auth/react";
 
 const deliveryOptions = [
-  { id: "regular", name: "پست معمولی", desc: "۲ تا ۴ روز کاری", cost: 0 },
-  { id: "express", name: "پست اکسپرس", desc: "۱ تا ۲ روز کاری", cost: 50000 },
+  { id: "regular", name: "پست معمولی", desc: "۲ تا ۴ روز کاری", cost: 100000 },
+  { id: "express", name: "پست اکسپرس", desc: "۱ تا ۲ روز کاری", cost: 200000 },
 ];
 
 export default function Page() {
+  const { data, status } = useSession();
+
+  const user = data?.user;
   const { items, totalPrice, clearCart } = useCart();
 
   const router = useRouter();
@@ -31,44 +35,36 @@ export default function Page() {
     deliveryOptions.find((d) => d.id === deliveryMethod)?.cost || 0;
   const orderTotal = totalPrice + deliveryCost - discountAmount;
 
-  // useEffect(() => {
-  //   if (!isLoading && !user) {
-  //     router.push("/login?redirect=/checkout");
-  //   }
-  // }, [user, isLoading, router]);
+  useEffect(() => {
+    if (!user && status === "unauthenticated") {
+      router.push("/login?callbackUrl=/checkout");
+    }
+  }, [status, router, user]);
 
-  // useEffect(() => {
-  //   if (!isLoading && items.length === 0 && !orderSuccess) {
-  //     router.push("/cart");
-  //   }
-  // }, [items, isLoading, router, orderSuccess]);
+  useEffect(() => {
+    if (items.length === 0 && !orderSuccess) {
+      router.push("/cart");
+    }
+  }, [items, router, orderSuccess]);
 
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm({
-    // defaultValues: {
-    //   fullName: user?.fullName || user?.name || "",
-    //   phone: user?.phone || "",
-    //   city: user?.city || "",
-    //   addressLine: user?.addressLine || user?.address || "",
-    //   postalCode: user?.postalCode || "",
-    // },
-  });
+  } = useForm({});
 
-  // useEffect(() => {
-  //   if (user) {
-  //     reset({
-  //       fullName: user.fullName || user.name || "",
-  //       phone: user.phone || "",
-  //       city: user.city || "",
-  //       addressLine: user.addressLine || user.address || "",
-  //       postalCode: user.postalCode || "",
-  //     });
-  //   }
-  // }, [user, reset]);
+  useEffect(() => {
+    if (user) {
+      reset({
+        fullName: user.fullName || user.name || "",
+        phone: user.phone || "",
+        city: user.city || "",
+        addressLine: user.addressLine || user.address || "",
+        postalCode: user.postalCode || "",
+      });
+    }
+  }, [user, reset]);
 
   const applyDiscount = () => {
     setDiscountError("");
@@ -95,8 +91,6 @@ export default function Page() {
     }, 1500);
   };
 
-  // if (isLoading) return null;
-
   if (orderSuccess) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#fdf6f0]">
@@ -120,8 +114,6 @@ export default function Page() {
     );
   }
 
-  // if (!user || items.length === 0) return null;
-
   return (
     <main className="max-w-7xl mx-auto px-4 md:px-8 lg:px-16 py-10 md:py-16 min-h-screen">
       <h1 className="text-2xl md:text-3xl font-light text-neutral-700 mb-8">
@@ -132,6 +124,7 @@ export default function Page() {
         <form
           onSubmit={handleSubmit(onSubmit)}
           className="lg:col-span-8 space-y-8"
+          id="checkout-form"
         >
           <section className="bg-[#fdf6f0] rounded-2xl p-6 md:p-8">
             <h2 className="text-lg font-medium text-neutral-700 mb-6">
@@ -414,7 +407,7 @@ function SubmitButton({ isPlacingOrder }) {
       type="submit"
       form="checkout-form"
       disabled={isPlacingOrder}
-      className="w-full py-3 bg-[#e8c4a8] text-white rounded-xl hover:bg-[#d4a98a] transition-colors text-sm uppercase tracking-widest disabled:opacity-70 disabled:cursor-not-allowed"
+      className="cursor-pointer w-full py-3 bg-[#e8c4a8] text-white rounded-xl hover:bg-[#d4a98a] transition-colors text-sm uppercase tracking-widest disabled:opacity-70 disabled:cursor-not-allowed"
     >
       {isPlacingOrder ? "در حال ثبت..." : "ثبت سفارش"}
     </button>

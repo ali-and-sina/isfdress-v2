@@ -1,4 +1,5 @@
 import ProductDetails from "@/components/product/ProductDetails";
+import { auth } from "@/lib/auth";
 import { getProducts } from "@/lib/products";
 
 export async function generateMetadata({ params }) {
@@ -17,7 +18,8 @@ export async function generateStaticParams() {
 export default async function ProductPage({ params }) {
   const { slug } = await params;
   const products = await getProducts();
-
+  const session = await auth();
+  const user = session?.user;
   const product = products.find((product) => product.slug === slug);
-  return <ProductDetails product={product} />;
+  return <ProductDetails product={product} user={user} />;
 }

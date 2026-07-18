@@ -1,22 +1,31 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import SignInOptions from "@/components/SignInOptions";
-import { useAuth } from "@/context/AuthContext";
+import {
+  useParams,
+  usePathname,
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
 
-export default function LoginPage() {
+import SignInOptions from "@/components/ui/SignInOptions";
+import { useSession } from "next-auth/react";
+
+export default function Page() {
   const [showModal, setShowModal] = useState(false);
-  const { user, isLoading } = useAuth();
+  const { data, status } = useSession();
+  const user = data?.user;
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("redirect") || "/";
+  const callbackUrl = useSearchParams().get("callbackUrl");
+  console.log(callbackUrl);
 
   useEffect(() => {
-    if (!isLoading && user) {
-      router.push(callbackUrl);
+    if (user && callbackUrl) {
+      router.replace(callbackUrl);
+    } else {
+      router.replace("/");
     }
-  }, [user, isLoading, router, callbackUrl]);
+  }, [user, router, callbackUrl]);
 
   const openModal = () => setShowModal(true);
   const closeModal = () => setShowModal(false);
@@ -33,8 +42,6 @@ export default function LoginPage() {
     }
     return () => document.removeEventListener("keydown", handleEsc);
   }, [showModal]);
-
-  if (isLoading) return null;
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-[#fdf6f0] px-4">

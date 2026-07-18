@@ -5,10 +5,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
-// import { useAuth } from "@/context/AuthContext";
 import { formatPrice } from "@/lib/products";
+import { useSession } from "next-auth/react";
 
-// درگاه‌های پرداخت نمونه
 const gateways = [
   { id: "mellat", name: "درگاه بانک ملت", icon: "🏦" },
   { id: "saman", name: "درگاه بانک سامان", icon: "💳" },
@@ -39,10 +38,10 @@ function getNextWeekDays() {
   return days;
 }
 
-export default function PaymentPage() {
+export default function Page() {
   const { items, totalPrice, clearCart } = useCart();
-  // const { user, isLoading } = useAuth();
   const router = useRouter();
+  const { user, status } = useSession();
 
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
@@ -55,17 +54,11 @@ export default function PaymentPage() {
 
   const weekDays = getNextWeekDays();
 
-  // useEffect(() => {
-  //   if (!isLoading && !user) {
-  //     router.push("/login?redirect=/payment");
-  //   }
-  // }, [user, isLoading, router]);
-
-  // useEffect(() => {
-  //   if (!isLoading && items.length === 0 && !orderSuccess) {
-  //     router.push("/cart");
-  //   }
-  // }, [items, isLoading, router, orderSuccess]);
+  useEffect(() => {
+    if (items.length === 0 && !orderSuccess) {
+      router.push("/cart");
+    }
+  }, [items, router, orderSuccess]);
 
   const handlePayment = () => {
     if (!selectedDate || !selectedTime) {
@@ -73,15 +66,12 @@ export default function PaymentPage() {
       return;
     }
     setIsPaying(true);
-    // شبیه‌سازی ارسال به درگاه
     setTimeout(() => {
       clearCart();
       setOrderSuccess(true);
       setIsPaying(false);
     }, 2000);
   };
-
-  // if (isLoading) return null;
 
   if (orderSuccess) {
     return (
@@ -103,8 +93,6 @@ export default function PaymentPage() {
     );
   }
 
-  // if (!user || items.length === 0) return null;
-
   return (
     <main className="max-w-7xl mx-auto px-4 md:px-8 lg:px-16 py-10 md:py-16 min-h-screen">
       <h1 className="text-2xl md:text-3xl font-light text-neutral-700 mb-8">
@@ -112,9 +100,7 @@ export default function PaymentPage() {
       </h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* محتوای اصلی */}
         <div className="lg:col-span-8 space-y-8">
-          {/* تاریخ تحویل */}
           <section className="bg-[#fdf6f0] rounded-2xl p-6 md:p-8">
             <h2 className="text-lg font-medium text-neutral-700 mb-6">
               تاریخ تحویل
@@ -217,7 +203,6 @@ export default function PaymentPage() {
             </div>
           </section>
 
-          {/* دکمهٔ پرداخت در موبایل */}
           <button
             onClick={handlePayment}
             disabled={isPaying}
@@ -227,7 +212,6 @@ export default function PaymentPage() {
           </button>
         </div>
 
-        {/* خلاصهٔ سفارش */}
         <aside className="lg:col-span-4">
           <div className="bg-[#fdf6f0] rounded-2xl p-6 sticky top-24 space-y-6">
             <h2 className="text-lg font-medium text-neutral-700">
@@ -237,7 +221,7 @@ export default function PaymentPage() {
             <div className="space-y-4 max-h-64 overflow-y-auto">
               {items.map((item) => (
                 <div key={item.cartItemId} className="flex items-center gap-3">
-                  <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-white flex-shrink-0">
+                  <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-white shrink-0">
                     <Image
                       src={item.images[0]}
                       alt={item.name}
