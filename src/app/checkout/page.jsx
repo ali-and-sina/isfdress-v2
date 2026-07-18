@@ -9,6 +9,7 @@ import { useCart } from "@/context/CartContext";
 import { formatPrice } from "@/lib/products";
 import { auth } from "@/lib/auth";
 import { useSession } from "next-auth/react";
+import SubmitButton from "@/components/ui/SubmitButton";
 
 const deliveryOptions = [
   { id: "regular", name: "پست معمولی", desc: "۲ تا ۴ روز کاری", cost: 100000 },
@@ -42,10 +43,10 @@ export default function Page() {
   }, [status, router, user]);
 
   useEffect(() => {
-    if (items.length === 0 && !orderSuccess) {
+    if (status !== "loading" && items.length === 0 && !orderSuccess) {
       router.push("/cart");
     }
-  }, [items, router, orderSuccess]);
+  }, [items, status, router, orderSuccess]);
 
   const {
     register,
@@ -90,6 +91,8 @@ export default function Page() {
       router.push("/checkout/payment");
     }, 1500);
   };
+
+  if (!user) return null;
 
   if (orderSuccess) {
     return (
@@ -398,18 +401,5 @@ export default function Page() {
         </aside>
       </div>
     </main>
-  );
-}
-
-function SubmitButton({ isPlacingOrder }) {
-  return (
-    <button
-      type="submit"
-      form="checkout-form"
-      disabled={isPlacingOrder}
-      className="cursor-pointer w-full py-3 bg-[#e8c4a8] text-white rounded-xl hover:bg-[#d4a98a] transition-colors text-sm uppercase tracking-widest disabled:opacity-70 disabled:cursor-not-allowed"
-    >
-      {isPlacingOrder ? "در حال ثبت..." : "ثبت سفارش"}
-    </button>
   );
 }

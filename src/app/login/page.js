@@ -22,8 +22,6 @@ export default function Page() {
   useEffect(() => {
     if (user && callbackUrl) {
       router.replace(callbackUrl);
-    } else {
-      router.replace("/");
     }
   }, [user, router, callbackUrl]);
 
