@@ -5,8 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
-import { formatPrice } from "@/lib/products";
 import { useSession } from "next-auth/react";
+import AsideCartInfo from "@/components/ui/AsideCartInfo";
 
 const gateways = [
   { id: "mellat", name: "درگاه بانک ملت", icon: "🏦" },
@@ -39,18 +39,14 @@ function getNextWeekDays() {
 }
 
 export default function Page() {
-  const { items, totalPrice, clearCart } = useCart();
+  const { items, clearCart, paymentMethod } = useCart();
   const router = useRouter();
-  const { user, status } = useSession();
 
   const [selectedDate, setSelectedDate] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
   const [selectedGateway, setSelectedGateway] = useState("zarinpal");
   const [isPaying, setIsPaying] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(false);
-
-  const deliveryCost = 0;
-  const finalAmount = totalPrice + deliveryCost;
 
   const weekDays = getNextWeekDays();
 
@@ -122,7 +118,6 @@ export default function Page() {
             </div>
           </section>
 
-          {/* بازهٔ زمانی */}
           <section className="bg-[#fdf6f0] rounded-2xl p-6 md:p-8">
             <h2 className="text-lg font-medium text-neutral-700 mb-6">
               بازهٔ زمانی تحویل
@@ -161,116 +156,60 @@ export default function Page() {
             </div>
           </section>
 
-          {/* انتخاب درگاه پرداخت */}
-          <section className="bg-[#fdf6f0] rounded-2xl p-6 md:p-8">
-            <h2 className="text-lg font-medium text-neutral-700 mb-6">
-              انتخاب درگاه پرداخت
-            </h2>
-            <div className="space-y-3">
-              {gateways.map((gw) => (
-                <label
-                  key={gw.id}
-                  className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all ${
-                    selectedGateway === gw.id
-                      ? "border-[#e8c4a8] bg-white"
-                      : "border-transparent bg-white/60 hover:bg-white"
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="gateway"
-                    className="hidden"
-                    checked={selectedGateway === gw.id}
-                    onChange={() => setSelectedGateway(gw.id)}
-                  />
-                  <div
-                    className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+          {paymentMethod === "online" ? (
+            <section className="bg-[#fdf6f0] rounded-2xl p-6 md:p-8">
+              <h2 className="text-lg font-medium text-neutral-700 mb-6">
+                انتخاب درگاه پرداخت
+              </h2>
+              <div className="space-y-3">
+                {gateways.map((gw) => (
+                  <label
+                    key={gw.id}
+                    className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all ${
                       selectedGateway === gw.id
-                        ? "border-[#e8c4a8]"
-                        : "border-neutral-300"
+                        ? "border-[#e8c4a8] bg-white"
+                        : "border-transparent bg-white/60 hover:bg-white"
                     }`}
                   >
-                    {selectedGateway === gw.id && (
-                      <div className="w-3 h-3 bg-[#e8c4a8] rounded-full" />
-                    )}
-                  </div>
-                  <span className="text-2xl">{gw.icon}</span>
-                  <span className="text-sm text-neutral-700 font-medium">
-                    {gw.name}
-                  </span>
-                </label>
-              ))}
-            </div>
-          </section>
+                    <input
+                      type="radio"
+                      name="gateway"
+                      className="hidden"
+                      checked={selectedGateway === gw.id}
+                      onChange={() => setSelectedGateway(gw.id)}
+                    />
+                    <div
+                      className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                        selectedGateway === gw.id
+                          ? "border-[#e8c4a8]"
+                          : "border-neutral-300"
+                      }`}
+                    >
+                      {selectedGateway === gw.id && (
+                        <div className="w-3 h-3 bg-[#e8c4a8] rounded-full" />
+                      )}
+                    </div>
+                    <span className="text-2xl">{gw.icon}</span>
+                    <span className="text-sm text-neutral-700 font-medium">
+                      {gw.name}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </section>
+          ) : null}
 
           <button
             onClick={handlePayment}
             disabled={isPaying}
             className="w-full py-3.5 bg-[#e8c4a8] text-white rounded-xl hover:bg-[#d4a98a] transition-colors text-sm uppercase tracking-widest disabled:opacity-70 disabled:cursor-not-allowed cursor-pointer lg:hidden"
           >
-            {isPaying ? "در حال انتقال به درگاه..." : "پرداخت و ثبت نهایی"}
+            {isPaying ? "در حال انتقال به درگاه..." : "ثبت نهایی"}
           </button>
         </div>
 
         <aside className="lg:col-span-4">
-          <div className="bg-[#fdf6f0] rounded-2xl p-6 sticky top-24 space-y-6">
-            <h2 className="text-lg font-medium text-neutral-700">
-              خلاصهٔ سفارش
-            </h2>
-
-            <div className="space-y-4 max-h-64 overflow-y-auto">
-              {items.map((item) => (
-                <div key={item.cartItemId} className="flex items-center gap-3">
-                  <div className="relative w-12 h-12 rounded-lg overflow-hidden bg-white shrink-0">
-                    <Image
-                      src={item.images[0]}
-                      alt={item.name}
-                      fill
-                      className="object-cover"
-                      sizes="48px"
-                    />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm text-neutral-700 truncate">
-                      {item.name}
-                    </p>
-                    <p className="text-xs text-neutral-400">
-                      {item.selectedColor && `رنگ: ${item.selectedColor}`}
-                      {item.selectedSize && ` | سایز: ${item.selectedSize}`}
-                    </p>
-                  </div>
-                  <span className="text-xs text-neutral-600">
-                    {item.quantity} × {formatPrice(item.price)}
-                  </span>
-                </div>
-              ))}
-            </div>
-
-            <div className="border-t border-[#f0e0d0] pt-4 space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-neutral-500">جمع کالاها</span>
-                <span>{formatPrice(totalPrice)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-neutral-500">هزینه ارسال</span>
-                <span>
-                  {deliveryCost === 0 ? "رایگان" : formatPrice(deliveryCost)}
-                </span>
-              </div>
-              <div className="flex justify-between font-medium text-neutral-800 border-t border-[#f0e0d0] pt-2 mt-2">
-                <span>مبلغ قابل پرداخت</span>
-                <span className="text-lg">{formatPrice(finalAmount)}</span>
-              </div>
-            </div>
-
-            <button
-              onClick={handlePayment}
-              disabled={isPaying}
-              className="hidden lg:block w-full py-3 bg-[#e8c4a8] text-white rounded-xl hover:bg-[#d4a98a] transition-colors text-sm uppercase tracking-widest disabled:opacity-70 disabled:cursor-not-allowed cursor-pointer"
-            >
-              {isPaying ? "در حال انتقال به درگاه..." : "پرداخت و ثبت نهایی"}
-            </button>
-          </div>
+          <AsideCartInfo handlePayment={handlePayment} isPaying={isPaying} />
         </aside>
       </div>
     </main>

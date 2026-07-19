@@ -1,6 +1,12 @@
 "use client";
 
-import { createContext, useContext, useReducer, useEffect } from "react";
+import {
+  createContext,
+  useContext,
+  useReducer,
+  useEffect,
+  useState,
+} from "react";
 
 function getCartItemId(product, selectedSize, selectedColor) {
   return `${product.id}-${selectedSize ?? "none"}-${selectedColor ?? "none"}`;
@@ -83,6 +89,8 @@ const CartContext = createContext(null);
 
 export function CartProvider({ children }) {
   const [items, dispatch] = useReducer(cartReducer, []);
+  const [paymentMethod, setPaymentMethod] = useState("online");
+  const [deliveryMethod, setDeliveryMethod] = useState("regular");
 
   useEffect(() => {
     try {
@@ -149,6 +157,10 @@ export function CartProvider({ children }) {
         clearCart,
         totalItems,
         totalPrice,
+        paymentMethod,
+        setPaymentMethod,
+        deliveryMethod,
+        setDeliveryMethod,
       }}
     >
       {children}
