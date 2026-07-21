@@ -40,7 +40,6 @@ function getNextWeekDays() {
 
 export default function Page() {
   const { items, clearCart, paymentMethod } = useCart();
-  console.log(paymentMethod);
   const router = useRouter();
 
   const [selectedDate, setSelectedDate] = useState(null);
@@ -210,7 +209,19 @@ export default function Page() {
         </div>
 
         <aside className="lg:col-span-4">
-          <AsideCartInfo handlePayment={handlePayment} isPaying={isPaying} />
+          <AsideCartInfo handlePayment={handlePayment} isPaying={isPaying}>
+            <button
+              onClick={handlePayment}
+              disabled={isPaying}
+              className="hidden lg:block w-full py-3 bg-[#e8c4a8] text-white rounded-xl hover:bg-[#d4a98a] transition-colors text-sm uppercase tracking-widest disabled:opacity-70 disabled:cursor-not-allowed cursor-pointer"
+            >
+              {isPaying && paymentMethod === "online"
+                ? "در حال انتقال به درگاه..."
+                : isPaying && paymentMethod === "cod"
+                  ? "درحال ثبت سفارش..."
+                  : "ثبت نهایی"}
+            </button>
+          </AsideCartInfo>
         </aside>
       </div>
     </main>

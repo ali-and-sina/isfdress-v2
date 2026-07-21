@@ -1,5 +1,5 @@
 import CartDetails from "@/components/cart/CartDetails";
 
-export default async function Page() {
+export default function Page() {
   return <CartDetails />;
 }

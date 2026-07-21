@@ -3,10 +3,20 @@ import Image from "next/image";
 import Link from "next/link";
 import { formatPrice } from "@/lib/products";
 import { useCart } from "@/context/CartContext";
+import { deliveryOptions } from "../checkout/CheckoutForm";
 
 function CartDetails() {
-  const { items, incrementItem, decrementItem, removeFromCart } = useCart();
-  console.log(items);
+  const {
+    items,
+    incrementItem,
+    decrementItem,
+    removeFromCart,
+    deliveryMethod,
+  } = useCart();
+
+  const shipping = deliveryOptions.find(
+    (option) => option.id === deliveryMethod,
+  ).cost;
 
   const subtotal = items.reduce(
     (sum, item) => sum + item.price * item.quantity,
@@ -14,7 +24,6 @@ function CartDetails() {
   );
   const discount = 0;
   const shippingThreshold = 500000;
-  const shipping = subtotal >= shippingThreshold ? 0 : 35000;
   const total = subtotal - discount + shipping;
   return (
     <main className="max-w-7xl mx-auto px-4 md:px-8 lg:px-16 py-10 md:py-16 min-h-screen">

@@ -1,10 +1,10 @@
 import { useCart } from "@/context/CartContext";
-import { formatPrice } from "@/lib/products";
+import { formatPrice, formatNumber } from "@/lib/products";
 import Image from "next/image";
 import { deliveryOptions } from "../checkout/CheckoutForm";
 
-function AsideCartInfo({ handlePayment, isPaying }) {
-  const { totalPrice, deliveryMethod, items, paymentMethod } = useCart();
+function AsideCartInfo({ handlePayment, isPaying, children }) {
+  const { totalPrice, deliveryMethod, items } = useCart();
   const deliveryCost = deliveryOptions.find(
     (option) => option.id === deliveryMethod,
   ).cost;
@@ -37,7 +37,7 @@ function AsideCartInfo({ handlePayment, isPaying }) {
               </p>
             </div>
             <span className="text-xs text-neutral-600">
-              {item.quantity} × {formatPrice(item.price)}
+              {formatNumber(item.quantity)} × {formatPrice(item.price)}
             </span>
           </div>
         ))}
@@ -59,18 +59,7 @@ function AsideCartInfo({ handlePayment, isPaying }) {
           <span className="text-lg">{formatPrice(finalAmount)}</span>
         </div>
       </div>
-
-      <button
-        onClick={handlePayment}
-        disabled={isPaying}
-        className="hidden lg:block w-full py-3 bg-[#e8c4a8] text-white rounded-xl hover:bg-[#d4a98a] transition-colors text-sm uppercase tracking-widest disabled:opacity-70 disabled:cursor-not-allowed cursor-pointer"
-      >
-        {isPaying && paymentMethod === "online"
-          ? "در حال انتقال به درگاه..."
-          : isPaying && paymentMethod === "cod"
-            ? "درحال ثبت سفارش..."
-            : "ثبت نهایی"}
-      </button>
+      {children}
     </div>
   );
 }
