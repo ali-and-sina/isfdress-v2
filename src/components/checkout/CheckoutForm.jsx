@@ -1,25 +1,29 @@
 "use client";
 import { useCart } from "@/context/CartContext";
 import { useSession } from "next-auth/react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import Image from "next/image";
 import { formatPrice } from "@/lib/products";
 import SubmitButton from "@/components/ui/SubmitButton";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export const deliveryOptions = [
   { id: "regular", name: "پست معمولی", desc: "۲ تا ۴ روز کاری", cost: 100000 },
   { id: "express", name: "پست اکسپرس", desc: "۱ تا ۲ روز کاری", cost: 200000 },
 ];
 
-function CheckoutForm({ setOrderSuccess }) {
+const FORM_ID = "checkout-form";
+
+function CheckoutForm() {
   const [discountCode, setDiscountCode] = useState("");
   const [discountError, setDiscountError] = useState("");
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
   const [discountAmount, setDiscountAmount] = useState(0);
+  const [orderSuccess, setOrderSuccess] = useState(false);
 
-  const { data } = useSession();
+  const { data, status } = useSession();
 
   const user = data?.user;
   const router = useRouter();
@@ -31,21 +35,28 @@ function CheckoutForm({ setOrderSuccess }) {
     deliveryMethod,
     setDeliveryMethod,
   } = useCart();
-  discountAmount;
 
   const deliveryCost =
-    deliveryOptions.find((d) => d.id === deliveryMethod)?.cost || 0;
-  const orderTotal = totalPrice + deliveryCost - discountAmount;
+    deliveryOptions.find((del) => del.id === deliveryMethod)?.cost || 0;
+
+  const discountRate = discountAmount > 0 ? 0.1 : 0;
+  const liveDiscountAmount = Math.round(totalPrice * discountRate);
+  const orderTotal = totalPrice + deliveryCost - liveDiscountAmount;
 
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm({});
+  } = useForm({
+    mode: "onSubmit",
+    reValidateMode: "onChange",
+  });
 
+  const resetRef = useRef(false);
   useEffect(() => {
-    if (user) {
+    if (user && !resetRef.current) {
+      resetRef.current = true;
       reset({
         fullName: user.fullName || user.name || "",
         phone: user.phone || "",
@@ -56,22 +67,24 @@ function CheckoutForm({ setOrderSuccess }) {
     }
   }, [user, reset]);
 
-  const applyDiscount = () => {
+  function applyDiscount() {
     setDiscountError("");
-    if (discountCode.trim() === "") {
+    const code = discountCode.trim();
+    if (code === "") {
       setDiscountError("کد تخفیف را وارد کنید");
       return;
     }
-    if (discountCode === "SUMMER10") {
+    if (code === "SUMMER10") {
       setDiscountAmount(Math.round(totalPrice * 0.1));
       setDiscountError("");
     } else {
       setDiscountError("کد تخفیف معتبر نیست");
       setDiscountAmount(0);
     }
-  };
+  }
 
-  function onSubmit(data) {
+  function onSubmit(formData) {
+    console.log(formData);
     setIsPlacingOrder(true);
     setTimeout(() => {
       setOrderSuccess(true);
@@ -80,12 +93,50 @@ function CheckoutForm({ setOrderSuccess }) {
     }, 1500);
   }
 
+  useEffect(() => {
+    if (!user && status === "unauthenticated") {
+      router.push("/login?callbackUrl=/checkout");
+    }
+  }, [status, router, user]);
+
+  useEffect(() => {
+    if (status !== "loading" && items.length === 0 && !orderSuccess) {
+      router.push("/cart");
+    }
+  }, [items, status, router, orderSuccess]);
+
+  if (!user) return null;
+
+  if (orderSuccess) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#fdf6f0]">
+        <div className="text-center space-y-4">
+          <span className="text-6xl">🎉</span>
+          <h1 className="text-3xl font-light text-neutral-700">
+            سفارش شما با موفقیت ثبت شد
+          </h1>
+          <p className="text-neutral-400">
+            با تشکر از خرید شما، شماره سفارش:{" "}
+            {Math.floor(Math.random() * 100000)}
+          </p>
+
+          <Link
+            href="/"
+            className="inline-block mt-4 px-6 py-2 bg-[#e8c4a8] text-white rounded-xl hover:bg-[#d4a98a] transition-colors"
+          >
+            بازگشت به فروشگاه
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="lg:col-span-8 space-y-8"
-        id="checkout-form"
+        id={FORM_ID}
       >
         <section className="bg-[#fdf6f0] rounded-2xl p-6 md:p-8">
           <h2 className="text-lg font-medium text-neutral-700 mb-6">
@@ -99,7 +150,12 @@ function CheckoutForm({ setOrderSuccess }) {
                 {...register("fullName", {
                   required: "نام و نام خانوادگی الزامی است",
                 })}
-                className="w-full px-4 py-3 bg-white rounded-xl text-sm text-neutral-700 placeholder-neutral-300 border border-transparent focus:border-[#e8c4a8] outline-none transition-colors"
+                aria-invalid={errors.fullName ? "true" : "false"}
+                className={`w-full px-4 py-3 bg-white rounded-xl text-sm text-neutral-700 placeholder-neutral-300 border outline-none transition-colors ${
+                  errors.fullName
+                    ? "border-rose-300 focus:border-rose-400"
+                    : "border-transparent focus:border-[#e8c4a8]"
+                }`}
               />
               {errors.fullName && (
                 <p className="text-xs text-rose-400 mt-1">
@@ -118,7 +174,12 @@ function CheckoutForm({ setOrderSuccess }) {
                     message: "شماره موبایل معتبر نیست",
                   },
                 })}
-                className="w-full px-4 py-3 bg-white rounded-xl text-sm text-neutral-700 placeholder-neutral-300 border border-transparent focus:border-[#e8c4a8] outline-none transition-colors"
+                aria-invalid={errors.phone ? "true" : "false"}
+                className={`w-full px-4 py-3 bg-white rounded-xl text-sm text-neutral-700 placeholder-neutral-300 border outline-none transition-colors ${
+                  errors.phone
+                    ? "border-rose-300 focus:border-rose-400"
+                    : "border-transparent focus:border-[#e8c4a8]"
+                }`}
               />
               {errors.phone && (
                 <p className="text-xs text-rose-400 mt-1">
@@ -131,7 +192,12 @@ function CheckoutForm({ setOrderSuccess }) {
                 type="text"
                 placeholder="شهر"
                 {...register("city", { required: "شهر الزامی است" })}
-                className="w-full px-4 py-3 bg-white rounded-xl text-sm text-neutral-700 placeholder-neutral-300 border border-transparent focus:border-[#e8c4a8] outline-none transition-colors"
+                aria-invalid={errors.city ? "true" : "false"}
+                className={`w-full px-4 py-3 bg-white rounded-xl text-sm text-neutral-700 placeholder-neutral-300 border outline-none transition-colors ${
+                  errors.city
+                    ? "border-rose-300 focus:border-rose-400"
+                    : "border-transparent focus:border-[#e8c4a8]"
+                }`}
               />
               {errors.city && (
                 <p className="text-xs text-rose-400 mt-1">
@@ -142,10 +208,26 @@ function CheckoutForm({ setOrderSuccess }) {
             <div>
               <input
                 type="text"
+                inputMode="numeric"
                 placeholder="کد پستی (اختیاری)"
-                {...register("postalCode")}
-                className="w-full px-4 py-3 bg-white rounded-xl text-sm text-neutral-700 placeholder-neutral-300 border border-transparent focus:border-[#e8c4a8] outline-none transition-colors"
+                {...register("postalCode", {
+                  pattern: {
+                    value: /^\d{10}$/,
+                    message: "کد پستی باید ۱۰ رقم باشد",
+                  },
+                })}
+                aria-invalid={errors.postalCode ? "true" : "false"}
+                className={`w-full px-4 py-3 bg-white rounded-xl text-sm text-neutral-700 placeholder-neutral-300 border outline-none transition-colors ${
+                  errors.postalCode
+                    ? "border-rose-300 focus:border-rose-400"
+                    : "border-transparent focus:border-[#e8c4a8]"
+                }`}
               />
+              {errors.postalCode && (
+                <p className="text-xs text-rose-400 mt-1">
+                  {errors.postalCode.message}
+                </p>
+              )}
             </div>
           </div>
           <div className="mt-4">
@@ -155,7 +237,12 @@ function CheckoutForm({ setOrderSuccess }) {
               {...register("addressLine", {
                 required: "آدرس کامل الزامی است",
               })}
-              className="w-full px-4 py-3 bg-white rounded-xl text-sm text-neutral-700 placeholder-neutral-300 border border-transparent focus:border-[#e8c4a8] outline-none transition-colors resize-none"
+              aria-invalid={errors.addressLine ? "true" : "false"}
+              className={`w-full px-4 py-3 bg-white rounded-xl text-sm text-neutral-700 placeholder-neutral-300 border outline-none transition-colors resize-none ${
+                errors.addressLine
+                  ? "border-rose-300 focus:border-rose-400"
+                  : "border-transparent focus:border-[#e8c4a8]"
+              }`}
             />
             {errors.addressLine && (
               <p className="text-xs text-rose-400 mt-1">
@@ -239,7 +326,8 @@ function CheckoutForm({ setOrderSuccess }) {
           )}
           {discountAmount > 0 && (
             <p className="mt-2 text-xs text-emerald-600">
-              کد تخفیف با موفقیت اعمال شد ({formatPrice(discountAmount)} تخفیف)
+              کد تخفیف با موفقیت اعمال شد ({formatPrice(liveDiscountAmount)}{" "}
+              تخفیف)
             </p>
           )}
         </section>
@@ -290,7 +378,7 @@ function CheckoutForm({ setOrderSuccess }) {
           <SubmitButton
             isPlacingOrder={isPlacingOrder}
             orderTotal={orderTotal}
-            discountAmount={discountAmount}
+            discountAmount={liveDiscountAmount}
             deliveryCost={deliveryCost}
           />
         </div>
@@ -338,10 +426,10 @@ function CheckoutForm({ setOrderSuccess }) {
                 {deliveryCost === 0 ? "رایگان" : formatPrice(deliveryCost)}
               </span>
             </div>
-            {discountAmount > 0 && (
+            {liveDiscountAmount > 0 && (
               <div className="flex justify-between text-emerald-600">
                 <span>تخفیف</span>
-                <span>-{formatPrice(discountAmount)}</span>
+                <span>-{formatPrice(liveDiscountAmount)}</span>
               </div>
             )}
             <div className="flex justify-between font-medium text-neutral-800 border-t border-[#f0e0d0] pt-2 mt-2">
@@ -352,9 +440,10 @@ function CheckoutForm({ setOrderSuccess }) {
 
           <div className="hidden lg:block">
             <SubmitButton
+              form={FORM_ID}
               isPlacingOrder={isPlacingOrder}
               orderTotal={orderTotal}
-              discountAmount={discountAmount}
+              discountAmount={liveDiscountAmount}
               deliveryCost={deliveryCost}
             />
           </div>

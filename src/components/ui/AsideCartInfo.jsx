@@ -4,7 +4,7 @@ import Image from "next/image";
 import { deliveryOptions } from "../checkout/CheckoutForm";
 
 function AsideCartInfo({ handlePayment, isPaying }) {
-  const { totalPrice, deliveryMethod, items } = useCart();
+  const { totalPrice, deliveryMethod, items, paymentMethod } = useCart();
   const deliveryCost = deliveryOptions.find(
     (option) => option.id === deliveryMethod,
   ).cost;

@@ -40,6 +40,7 @@ function getNextWeekDays() {
 
 export default function Page() {
   const { items, clearCart, paymentMethod } = useCart();
+  console.log(paymentMethod);
   const router = useRouter();
 
   const [selectedDate, setSelectedDate] = useState(null);
