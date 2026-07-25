@@ -2,13 +2,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { reviews } from "@/data/reviews";
 import { formatNumber } from "@/lib/products";
 
-// Shared date parser so every part of the component reads "YYYY/MM/DD"
-// the same way — new Date("1403/04/15") is NOT reliable across browsers,
-// so we parse the parts manually and build the Date ourselves.
 function parseDate(dateStr) {
   const [y, m, d] = dateStr.split("/").map(Number);
   return new Date(y, m - 1, d);
@@ -25,10 +22,9 @@ function relativeDate(dateStr) {
   return dateStr;
 }
 
-export default function ProductReviews({
-  isLoggedIn = false,
-  productId = "default",
-}) {
+export default function ProductReviews({ user, productId = "default" }) {
+  const pathname = usePathname();
+
   const router = useRouter();
   const [sortBy, setSortBy] = useState("newest");
   const [expanded, setExpanded] = useState(false);
@@ -74,8 +70,8 @@ export default function ProductReviews({
   }
 
   function handleWriteReview() {
-    if (!isLoggedIn) {
-      router.push("/auth/login");
+    if (!user) {
+      router.push(`/login?callbackUrl=${pathname}`);
     } else {
       alert("باز کردن فرم ثبت نظر");
     }
