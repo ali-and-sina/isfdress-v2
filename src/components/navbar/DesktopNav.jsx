@@ -15,7 +15,7 @@ export default function DesktopNav({ activeMegaMenu, setActiveMegaMenu }) {
         <div className="flex items-center gap-5">
           <Logo />
 
-          <div className="w-[450px]">
+          <div className="w-112.5">
             <SearchBar />
           </div>
         </div>
