@@ -2,9 +2,12 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { navbarItems } from "@/data/navbarData";
 
-export default function MobileDrawer({ mobileMenuOpen, closeDrawer }) {
+export default function MobileDrawer({
+  categories,
+  mobileMenuOpen,
+  closeDrawer,
+}) {
   // null = showing the main category list; otherwise holds the active category item
   const [activeItem, setActiveItem] = useState(null);
 
@@ -17,7 +20,10 @@ export default function MobileDrawer({ mobileMenuOpen, closeDrawer }) {
 
   return (
     <>
-      <div onClick={resetAndClose} className="fixed inset-0 z-[60] bg-black/30" />
+      <div
+        onClick={resetAndClose}
+        className="fixed inset-0 z-[60] bg-black/30"
+      />
 
       <aside className="fixed right-0 top-0 z-[70] h-full w-72 overflow-y-auto bg-white shadow-2xl">
         {!activeItem ? (
@@ -28,7 +34,7 @@ export default function MobileDrawer({ mobileMenuOpen, closeDrawer }) {
             </div>
 
             <div className="space-y-2 p-3">
-              {navbarItems.map((item) => (
+              {categories.map((item) => (
                 <button
                   key={item.id}
                   onClick={() => setActiveItem(item)}

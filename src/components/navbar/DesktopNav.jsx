@@ -2,11 +2,15 @@
 
 import Link from "next/link";
 import MegaMenu from "./MegaMenu";
-import { navbarItems } from "@/data/navbarData";
+
 import Logo from "./Logo";
 import SearchBar from "./SearchBar";
 
-export default function DesktopNav({ activeMegaMenu, setActiveMegaMenu }) {
+export default function DesktopNav({
+  categories,
+  activeMegaMenu,
+  setActiveMegaMenu,
+}) {
   return (
     <div className="hidden md:block">
       {/* top row */}
@@ -32,7 +36,7 @@ export default function DesktopNav({ activeMegaMenu, setActiveMegaMenu }) {
 
       {/* second row */}
       <nav className="flex h-12  items-center justify-around divide-x divide-gray-200 px-12 ">
-        {navbarItems.map((item) => (
+        {categories.map((item) => (
           <div
             key={item.id}
             className="group relative flex h-full items-center px-8 cursor-pointer"
