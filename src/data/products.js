@@ -6,6 +6,7 @@ export const products = [
     price: 410000,
     oldPrice: 480000,
     categoryId: 1,
+    descrioption: "",
     subCategoryId: 4,
     colors: ["سفید", "مشکی", "کرم"],
     sizes: ["S", "M", "L", "XL"],

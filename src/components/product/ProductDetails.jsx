@@ -1,10 +1,8 @@
 "use client";
 
-import { productCategories } from "@/data/categories";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { subCategories } from "@/data/subcategories";
 import AddToCartButton from "../ui/AddToCartButton";
 import SimilarProducts from "./SimilarProducts";
 import ProductReviews from "./ProductReviews";
@@ -36,7 +34,7 @@ const colorMap = {
   "زرد مایل به سبز": "#a3e635",
 };
 
-export default function ProductDetails({ product, user }) {
+export default function ProductDetails({ product, category, subCategory, user }) {
   const { addToCart, items, incrementItem, decrementItem, removeFromCart } =
     useCart();
   const item = items ? items.find((item) => item.id === product.id) : null;
@@ -48,13 +46,6 @@ export default function ProductDetails({ product, user }) {
   const [error, setError] = useState(null);
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [galleryIndex, setGalleryIndex] = useState(0);
-
-  const category = productCategories.find(
-    (category) => category.id === product.categoryId,
-  );
-  const subCategory = subCategories.find(
-    (subCat) => subCat.id === product.subCategoryId,
-  );
 
   const currentCartItem = items.find(
     (item) =>
@@ -112,7 +103,7 @@ export default function ProductDetails({ product, user }) {
     setGalleryIndex((prev) => (prev + 1) % product.images.length);
   const prevImage = () =>
     setGalleryIndex(
-      (prev) => (prev - 1 + product.images.length) % product.images.length,
+      (prev) => (prev - 1 + product.images.length) % product.images.length
     );
 
   useEffect(() => {
@@ -147,20 +138,28 @@ export default function ProductDetails({ product, user }) {
             خانه
           </Link>
           <span className="text-neutral-300 shrink-0">/</span>
-          <Link
-            href={`/productCategory/${category.slug}`}
-            className="hover:text-neutral-600 transition-colors cursor-pointer"
-          >
-            {category.name}
-          </Link>
-          <span className="text-neutral-300 shrink-0">/</span>
-          <Link
-            href={`/productCategory/${category.slug}/${subCategory.slug}`}
-            className="hover:text-neutral-600 transition-colors cursor-pointer"
-          >
-            {subCategory.name}
-          </Link>
-          <span className="text-neutral-300 shrink-0">/</span>
+          {category && (
+            <>
+              <Link
+                href={`/productCategory/${category.slug}`}
+                className="hover:text-neutral-600 transition-colors cursor-pointer"
+              >
+                {category.name}
+              </Link>
+              <span className="text-neutral-300 shrink-0">/</span>
+            </>
+          )}
+          {subCategory && (
+            <>
+              <Link
+                href={`/productCategory/${category.slug}/${subCategory.slug}`}
+                className="hover:text-neutral-600 transition-colors cursor-pointer"
+              >
+                {subCategory.name}
+              </Link>
+              <span className="text-neutral-300 shrink-0">/</span>
+            </>
+          )}
           <span className="text-neutral-600 truncate">{product.name}</span>
         </nav>
 
@@ -187,7 +186,7 @@ export default function ProductDetails({ product, user }) {
                 <span className="absolute top-3 right-3 bg-rose-300/90 text-white text-xs px-3 py-1.5 rounded-full backdrop-blur-sm z-10">
                   {Math.round(
                     ((product.oldPrice - product.price) / product.oldPrice) *
-                      100,
+                      100
                   )}
                   ٪ تخفیف
                 </span>
@@ -295,7 +294,13 @@ export default function ProductDetails({ product, user }) {
                     >
                       {selectedColor === color && (
                         <svg
-                          className={`w-4 h-4 ${color === "سفید" || color === "زرد" || color === "کرم" ? "text-neutral-700" : "text-white"} drop-shadow`}
+                          className={`w-4 h-4 ${
+                            color === "سفید" ||
+                            color === "زرد" ||
+                            color === "کرم"
+                              ? "text-neutral-700"
+                              : "text-white"
+                          } drop-shadow`}
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -440,7 +445,7 @@ export default function ProductDetails({ product, user }) {
           </div>
         </div>
         <SimilarProducts
-          categoryId={product.categoryId}
+          categoryId={product.category_id}
           currentId={product.id}
         />
         <ProductReviews user={user} />

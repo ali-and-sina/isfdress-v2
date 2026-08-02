@@ -1,4 +1,4 @@
-import { getProducts, paginateProducts } from "@/lib/products";
+import { getProducts as newGetProducts } from "@/lib/getProducts";
 import { getPageTitle } from "@/lib/getPageTitle";
 import Link from "next/link";
 import ProductGrid from "@/components/product/ProductGrid";
@@ -7,18 +7,16 @@ import ProductFilters from "@/components/product/ProductFilters";
 
 export default async function Products({ searchParams }) {
   const resolvedSearchParams = await searchParams;
-  const allProducts = getProducts({
-    sort: resolvedSearchParams.sort,
-    isNew: resolvedSearchParams.isNew,
-    onSale: resolvedSearchParams.onSale,
-    searchQuery: resolvedSearchParams.q,
-  });
-  const { items, currentPage, totalPages } = paginateProducts(
-    allProducts,
-    resolvedSearchParams.page,
-    16
-  );
+
   const title = getPageTitle(resolvedSearchParams);
+  const { products, currentPage, totalPages } = await newGetProducts({
+    page: Number(resolvedSearchParams.page) || 1,
+    onlySpecialProducts: resolvedSearchParams.isNew,
+    onlyOnSale: resolvedSearchParams.onSale,
+    searchQuery: resolvedSearchParams.q,
+    sort: resolvedSearchParams.sort,
+  });
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
       <nav className="flex flex-wrap items-center gap-1 text-sm text-gray-500">
@@ -38,7 +36,7 @@ export default async function Products({ searchParams }) {
           showIsNewAndOnSale={true}
         />
       </div>
-      <ProductGrid products={items} />
+      <ProductGrid products={products} />
 
       <Pagination currentPage={currentPage} totalPages={totalPages} />
     </div>

@@ -1,25 +1,35 @@
+import { notFound } from "next/navigation";
 import ProductDetails from "@/components/product/ProductDetails";
+import { getProduct } from "@/lib/getProduct";
+import { getCategoryPathByLeafId } from "@/lib/categories";
 import { auth } from "@/lib/auth";
-import { getProducts } from "@/lib/products";
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
-  const products = await getProducts();
-  const { name } = products.find((product) => product.slug === slug);
-  return { title: `فروشگاه اینترنتی لاکس | ${name}` };
-}
-export async function generateStaticParams() {
-  const products = await getProducts();
-  return products.map((product) => ({
-    slug: product.slug,
-  }));
+  const product = await getProduct(slug);
+  if (!product) return { title: "فروشگاه اینترنتی لاکس" };
+  return { title: `فروشگاه اینترنتی لاکس | ${product.name}` };
 }
 
 export default async function ProductPage({ params }) {
   const { slug } = await params;
-  const products = await getProducts();
+
+  const product = await getProduct(slug);
+  if (!product) notFound();
+
+  const { category, subCategory } = await getCategoryPathByLeafId(
+    product.categoryId
+  );
+
   const session = await auth();
   const user = session?.user;
-  const product = products.find((product) => product.slug === slug);
-  return <ProductDetails product={product} user={user} />;
+
+  return (
+    <ProductDetails
+      product={product}
+      category={category}
+      subCategory={subCategory}
+      user={user}
+    />
+  );
 }

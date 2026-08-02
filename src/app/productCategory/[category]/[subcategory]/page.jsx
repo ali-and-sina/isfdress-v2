@@ -1,10 +1,10 @@
 import { notFound } from "next/navigation";
-import { productCategories } from "@/data/categories";
 import {
-  subCategories,
-  getSubCategoriesByCategoryId,
-} from "@/data/subcategories";
-import { getProducts, paginateProducts } from "@/lib/products";
+  getCategoryBySlug,
+  getSubCategories,
+  getSubCategoryBySlug,
+} from "@/lib/categories";
+import { getProducts } from "@/lib/getProducts";
 import ProductGrid from "@/components/product/ProductGrid";
 import ProductFilters from "@/components/product/ProductFilters";
 import Pagination from "@/components/product/Pagination";
@@ -14,27 +14,19 @@ export default async function SubCategoryPage({ params, searchParams }) {
   const { category: categorySlug, subcategory: subCategorySlug } = await params;
   const resolvedSearchParams = await searchParams;
 
-  const category = productCategories.find((c) => c.slug === categorySlug);
+  const category = await getCategoryBySlug(categorySlug);
   if (!category) notFound();
 
-  const subCategory = subCategories.find(
-    (s) => s.slug === subCategorySlug && s.categoryId === category.id
-  );
+  const subCategory = await getSubCategoryBySlug(category.id, subCategorySlug);
   if (!subCategory) notFound();
 
-  const allSubCategories = getSubCategoriesByCategoryId(category.id);
+  const allSubCategories = await getSubCategories(category.id);
 
-  const filteredProducts = getProducts({
-    categoryId: category.id,
-    subCategoryId: subCategory.id,
+  const { products, currentPage, totalPages } = await getProducts({
+    categoryIds: [subCategory.id],
     sort: resolvedSearchParams.sort,
+    page: Number(resolvedSearchParams.page) || 1,
   });
-
-  const { items, currentPage, totalPages } = paginateProducts(
-    filteredProducts,
-    resolvedSearchParams.page,
-    12
-  );
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
@@ -44,11 +36,9 @@ export default async function SubCategoryPage({ params, searchParams }) {
           { name: subCategory.name },
         ]}
       />
-
       <h1 className="mb-6 mt-3 text-xl font-bold text-gray-900">
         {subCategory.name}
       </h1>
-
       <div className="mb-6">
         <ProductFilters
           categorySlug={category.slug}
@@ -56,9 +46,7 @@ export default async function SubCategoryPage({ params, searchParams }) {
           activeSubCategorySlug={subCategory.slug}
         />
       </div>
-
-      <ProductGrid products={items} />
-
+      <ProductGrid products={products} />
       <Pagination currentPage={currentPage} totalPages={totalPages} />
     </div>
   );
