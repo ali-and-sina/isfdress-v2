@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 export default function AddToCartButton({
   product,
   onAddToCart,
@@ -82,6 +84,16 @@ export default function AddToCartButton({
               />
             </svg>
           </button>
+          <p className="text-lg mr-52">
+            <span className="text-sm text-neutral-400 font-light">برو به </span>
+
+            <Link
+              href="/cart"
+              className="hover:text-neutral-600 transition-colors cursor-pointer"
+            >
+              سبد خرید
+            </Link>
+          </p>
         </div>
       )}
     </div>

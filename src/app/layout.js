@@ -3,6 +3,7 @@ import "./globals.css";
 import localFont from "next/font/local";
 import { CartProvider } from "@/context/CartContext";
 import { getNavCategoriesCached } from "@/lib/categories";
+import AuthProvider from "./providers/SessionProvider";
 
 const vazirmatn = localFont({
   src: "../fonts/Vazirmatn[wght].woff2",
@@ -22,10 +23,12 @@ export default async function RootLayout({ children }) {
   return (
     <html lang="fa" dir="rtl">
       <CartProvider>
-        <body className={vazirmatn.className}>
-          <Navbar categories={categories} />
-          {children}
-        </body>
+        <AuthProvider>
+          <body className={vazirmatn.className}>
+            <Navbar categories={categories} />
+            {children}
+          </body>
+        </AuthProvider>
       </CartProvider>
     </html>
   );
