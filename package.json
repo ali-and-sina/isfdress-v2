@@ -2,11 +2,15 @@
   "name": "isfdress",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:init": "node --env-file=.env.local scripts/db-init.js",
+    "db:reset": "node --env-file=.env.local scripts/reset-db.js",
+    "seed": "node --env-file=.env.local scripts/seed.js"
   },
   "dependencies": {
     "next": "16.2.10",

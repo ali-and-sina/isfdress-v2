@@ -441,7 +441,7 @@ export default function ProductDetails({ product, category, subCategory }) {
           </div>
         </div>
         <SimilarProducts
-          categoryId={product.categoryId}
+          categoryId={product.category_id}
           currentId={product.id}
         />
         <ProductReviews />

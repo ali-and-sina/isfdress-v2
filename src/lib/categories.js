@@ -63,7 +63,7 @@ export async function getNavCategories() {
         id: row.sub_id,
         name: row.sub_name,
         slug: row.sub_slug,
-        categorySlug: row.slug, // parent's slug, needed for the mega menu link
+        categorySlug: row.slug,
       });
     }
   }
@@ -73,7 +73,7 @@ export async function getNavCategories() {
 export const getNavCategoriesCached = unstable_cache(
   getNavCategories,
   ["nav-categories"],
-  { revalidate: 3600 } // 1 hour; call revalidateTag/revalidatePath from your admin panel when categories change
+  { revalidate: 3600 }
 );
 export async function getCategoryPathByLeafId(leafId) {
   const { rows } = await query(
@@ -89,7 +89,6 @@ export async function getCategoryPathByLeafId(leafId) {
   const row = rows[0];
   if (!row) return { category: null, subCategory: null };
 
-  // product tagged on a subcategory → parent exists
   if (row.parent_id) {
     return {
       category: {
@@ -105,7 +104,6 @@ export async function getCategoryPathByLeafId(leafId) {
     };
   }
 
-  // product tagged directly on a top-level category, no subcategory
   return {
     category: { id: row.leaf_id, name: row.leaf_name, slug: row.leaf_slug },
     subCategory: null,

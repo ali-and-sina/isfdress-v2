@@ -11,7 +11,7 @@ export async function getProducts({
   const conditions = [];
   const values = [];
 
-  // ---------------- Filters ----------------
+  //  Filters
 
   if (onlySpecialProducts) {
     conditions.push("p.is_on_special_list IS TRUE");
@@ -36,7 +36,7 @@ export async function getProducts({
   const whereClause =
     conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
 
-  // ---------------- Sorting ----------------
+  //  Sorting
 
   let orderBy = "";
 
@@ -59,7 +59,7 @@ export async function getProducts({
       break;
   }
 
-  // ---------------- Count Query ----------------
+  //  Count Query
 
   const countValues = [...values];
 
@@ -69,7 +69,7 @@ export async function getProducts({
     ${whereClause}
   `;
 
-  // ---------------- Pagination ----------------
+  //  Pagination
 
   const limit = 16;
   const offset = (page - 1) * limit;
@@ -80,7 +80,7 @@ export async function getProducts({
   values.push(offset);
   const offsetIndex = values.length;
 
-  // ---------------- Products Query ----------------
+  //  Products Query
 
   const productsSql = `
     SELECT
