@@ -1,15 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  useParams,
-  usePathname,
-  useRouter,
-  useSearchParams,
-} from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import SignInOptions from "@/components/ui/SignInOptions";
 import { useSession } from "next-auth/react";
+import { LogIn } from "lucide-react";
 
 export default function Page() {
   const [showModal, setShowModal] = useState(false);
@@ -42,10 +38,11 @@ export default function Page() {
   }, [showModal]);
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-[#fdf6f0] px-4">
+    <main className="relative min-h-[calc(100vh-112px)] flex items-center justify-center ">
+      <div className="absolute inset-0 -z-10 bg-[url('/images/logo.png')] bg-fixed bg-top opacity-10" />
       <div className="w-full max-w-md">
         <div className="bg-white rounded-3xl shadow-sm p-8 md:p-10 text-center space-y-6">
-          <div className="text-5xl mb-2">👋</div>
+          <LogIn className=" mb-4 mx-auto text-center " />
           <h1 className="text-2xl font-light text-neutral-700">خوش آمدید</h1>
           <p className="text-sm text-neutral-400 font-light">
             برای ادامه، وارد حساب کاربری خود شوید
