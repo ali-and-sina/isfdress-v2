@@ -22,14 +22,14 @@ export default async function RootLayout({ children }) {
 
   return (
     <html lang="fa" dir="rtl">
-      <CartProvider>
-        <AuthProvider>
-          <body className={vazirmatn.className}>
+      <body className={vazirmatn.className}>
+        <CartProvider>
+          <AuthProvider>
             <Navbar categories={categories} />
             {children}
-          </body>
-        </AuthProvider>
-      </CartProvider>
+          </AuthProvider>
+        </CartProvider>
+      </body>
     </html>
   );
 }
