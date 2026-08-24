@@ -4,6 +4,9 @@ import localFont from "next/font/local";
 import { CartProvider } from "@/context/CartContext";
 import { getNavCategoriesCached } from "@/lib/categories";
 import AuthProvider from "./providers/SessionProvider";
+import { AppRouterCacheProvider } from "@mui/material-nextjs/v15-appRouter";
+import { ThemeProvider } from "@mui/material/styles";
+import theme from "@/theme/theme";
 
 const vazirmatn = localFont({
   src: "../fonts/Vazirmatn[wght].woff2",
@@ -23,12 +26,16 @@ export default async function RootLayout({ children }) {
   return (
     <html lang="fa" dir="rtl">
       <body className={vazirmatn.className}>
-        <CartProvider>
-          <AuthProvider>
-            <Navbar categories={categories} />
-            {children}
-          </AuthProvider>
-        </CartProvider>
+        <AppRouterCacheProvider>
+          <ThemeProvider theme={theme}>
+            <CartProvider>
+              <AuthProvider>
+                <Navbar categories={categories} />
+                {children}
+              </AuthProvider>
+            </CartProvider>
+          </ThemeProvider>
+        </AppRouterCacheProvider>
       </body>
     </html>
   );

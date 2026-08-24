@@ -13,11 +13,13 @@ export default function Page() {
   const user = data?.user;
   const router = useRouter();
   const callbackUrl = useSearchParams().get("callbackUrl");
-  console.log(callbackUrl);
 
   useEffect(() => {
     if (user && callbackUrl) {
       router.replace(callbackUrl);
+    }
+    if (user) {
+      router.replace("/");
     }
   }, [user, router, callbackUrl]);
 
@@ -36,6 +38,20 @@ export default function Page() {
     }
     return () => document.removeEventListener("keydown", handleEsc);
   }, [showModal]);
+
+  if (status === "loading")
+    return (
+      <p className="text-center mt-8 text-2xl font-light text-neutral-700 ">
+        LOADING
+      </p>
+    );
+
+  if (user)
+    return (
+      <p className="text-center mt-8 text-2xl font-light text-neutral-700 ">
+        شما با موفقیت وارد حساب کاربریتان شدید.
+      </p>
+    );
 
   return (
     <main className="relative min-h-[calc(100vh-112px)] flex items-center justify-center ">
