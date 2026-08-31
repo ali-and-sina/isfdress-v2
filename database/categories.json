@@ -1,162 +1,162 @@
 [
   {
-    "id":21,
-    "name":"زنانه",
-    "slug":"women",
-    "description":"پوشاک زنانه شامل پیراهن، دامن، مانتو و بیشتر",
-    "image_url":"https:\/\/i.imgur.com\/Wv2KTsf.jpeg",
-    "parent_id":null
+    "id": 21,
+    "name": "زنانه",
+    "slug": "women",
+    "description": "پوشاک زنانه شامل پیراهن، دامن، مانتو و بیشتر",
+    "image_url": "https://i.imgur.com/Wv2KTsf.jpeg",
+    "parent_id": null
   },
   {
-    "id":22,
-    "name":"مردانه",
-    "slug":"men",
-    "description":"پوشاک مردانه شامل پیراهن، شلوار، کت و بیشتر",
-    "image_url":"https:\/\/i.imgur.com\/76HAxcA.jpeg",
-    "parent_id":null
+    "id": 22,
+    "name": "مردانه",
+    "slug": "men",
+    "description": "پوشاک مردانه شامل پیراهن، شلوار، کت و بیشتر",
+    "image_url": "https://i.imgur.com/76HAxcA.jpeg",
+    "parent_id": null
   },
   {
-    "id":23,
-    "name":"بچگانه",
-    "slug":"kids",
-    "description":"پوشاک نوزاد، دخترانه و پسرانه",
-    "image_url":"https:\/\/i.imgur.com\/cBuLvBi.jpeg",
-    "parent_id":null
+    "id": 23,
+    "name": "بچگانه",
+    "slug": "kids",
+    "description": "پوشاک نوزاد، دخترانه و پسرانه",
+    "image_url": "https://i.imgur.com/cBuLvBi.jpeg",
+    "parent_id": null
   },
   {
-    "id":24,
-    "name":"اکسسوری",
-    "slug":"accessories",
-    "description":"کیف، کفش، جواهرات و شال و روسری",
-    "image_url":"https:\/\/i.imgur.com\/N1GkCIR.jpeg",
-    "parent_id":null
+    "id": 24,
+    "name": "اکسسوری",
+    "slug": "accessories",
+    "description": "کیف، کفش، جواهرات و شال و روسری",
+    "image_url": "https://i.imgur.com/N1GkCIR.jpeg",
+    "parent_id": null
   },
   {
-    "id":25,
-    "name":"پیراهن مجلسی",
-    "slug":"women-evening-dress",
-    "description":null,
-    "image_url":null,
-    "parent_id":21.0
+    "id": 25,
+    "name": "پیراهن مجلسی",
+    "slug": "women-evening-dress",
+    "description": null,
+    "image_url": "https://i.imgur.com/Tnl15XK.jpg",
+    "parent_id": 21
   },
   {
-    "id":26,
-    "name":"پیراهن روزمره",
-    "slug":"women-casual-dress",
-    "description":null,
-    "image_url":null,
-    "parent_id":21.0
+    "id": 26,
+    "name": "پیراهن روزمره",
+    "slug": "women-casual-dress",
+    "description": null,
+    "image_url": "https://i.imgur.com/Yi3IJMA.png",
+    "parent_id": 21
   },
   {
-    "id":27,
-    "name":"دامن",
-    "slug":"women-skirt",
-    "description":null,
-    "image_url":null,
-    "parent_id":21.0
+    "id": 27,
+    "name": "دامن",
+    "slug": "women-skirt",
+    "description": null,
+    "image_url": "https://i.imgur.com/CTniJwg.jpg",
+    "parent_id": 21
   },
   {
-    "id":28,
-    "name":"بلوز و تاپ",
-    "slug":"women-blouse",
-    "description":null,
-    "image_url":null,
-    "parent_id":21.0
+    "id": 28,
+    "name": "بلوز و تاپ",
+    "slug": "women-blouse",
+    "description": null,
+    "image_url": "https://i.imgur.com/M5h6PPE.jpg",
+    "parent_id": 21
   },
   {
-    "id":29,
-    "name":"مانتو",
-    "slug":"women-manto",
-    "description":null,
-    "image_url":null,
-    "parent_id":21.0
+    "id": 29,
+    "name": "مانتو",
+    "slug": "women-manto",
+    "description": null,
+    "image_url": "https://i.imgur.com/WGLEveG.jpg",
+    "parent_id": 21
   },
   {
-    "id":30,
-    "name":"پیراهن مردانه",
-    "slug":"men-shirt",
-    "description":null,
-    "image_url":null,
-    "parent_id":22.0
+    "id": 30,
+    "name": "پیراهن مردانه",
+    "slug": "men-shirt",
+    "description": null,
+    "image_url": "https://i.imgur.com/TMW5Zhc_d.jpg",
+    "parent_id": 22
   },
   {
-    "id":31,
-    "name":"تیشرت",
-    "slug":"men-tshirt",
-    "description":null,
-    "image_url":null,
-    "parent_id":22.0
+    "id": 31,
+    "name": "تیشرت",
+    "slug": "men-tshirt",
+    "description": null,
+    "image_url": "https://i.imgur.com/V4zOLXM.jpg",
+    "parent_id": 22
   },
   {
-    "id":32,
-    "name":"شلوار",
-    "slug":"men-pants",
-    "description":null,
-    "image_url":null,
-    "parent_id":22.0
+    "id": 32,
+    "name": "شلوار",
+    "slug": "men-pants",
+    "description": null,
+    "image_url": "https://i.imgur.com/OAUkJXA.png",
+    "parent_id": 22
   },
   {
-    "id":33,
-    "name":"کت و کاپشن",
-    "slug":"men-jacket",
-    "description":null,
-    "image_url":null,
-    "parent_id":22.0
+    "id": 33,
+    "name": "کت و کاپشن",
+    "slug": "men-jacket",
+    "description": null,
+    "image_url": "https://i.imgur.com/16T8eJ0.jpg",
+    "parent_id": 22
   },
   {
-    "id":34,
-    "name":"نوزاد",
-    "slug":"kids-baby",
-    "description":null,
-    "image_url":null,
-    "parent_id":23.0
+    "id": 34,
+    "name": "نوزاد",
+    "slug": "kids-baby",
+    "description": null,
+    "image_url": "https://i.imgur.com/VqC7e9o.png",
+    "parent_id": 23
   },
   {
-    "id":35,
-    "name":"دخترانه",
-    "slug":"kids-girls",
-    "description":null,
-    "image_url":null,
-    "parent_id":23.0
+    "id": 35,
+    "name": "دخترانه",
+    "slug": "kids-girls",
+    "description": null,
+    "image_url": "https://i.imgur.com/Tnl15XK.jpg",
+    "parent_id": 23
   },
   {
-    "id":36,
-    "name":"پسرانه",
-    "slug":"kids-boys",
-    "description":null,
-    "image_url":null,
-    "parent_id":23.0
+    "id": 36,
+    "name": "پسرانه",
+    "slug": "kids-boys",
+    "description": null,
+    "image_url": "https://i.imgur.com/Yi3IJMA.png",
+    "parent_id": 23
   },
   {
-    "id":37,
-    "name":"کیف",
-    "slug":"accessories-bag",
-    "description":null,
-    "image_url":null,
-    "parent_id":24.0
+    "id": 37,
+    "name": "کیف",
+    "slug": "accessories-bag",
+    "description": null,
+    "image_url": "https://i.imgur.com/CTniJwg.jpg",
+    "parent_id": 24
   },
   {
-    "id":38,
-    "name":"جواهرات",
-    "slug":"accessories-jewelry",
-    "description":null,
-    "image_url":null,
-    "parent_id":24.0
+    "id": 38,
+    "name": "جواهرات",
+    "slug": "accessories-jewelry",
+    "description": null,
+    "image_url": "https://i.imgur.com/M5h6PPE.jpg",
+    "parent_id": 24
   },
   {
-    "id":39,
-    "name":"کفش",
-    "slug":"accessories-shoes",
-    "description":null,
-    "image_url":null,
-    "parent_id":24.0
+    "id": 39,
+    "name": "کفش",
+    "slug": "accessories-shoes",
+    "description": null,
+    "image_url": "https://i.imgur.com/WGLEveG.jpg",
+    "parent_id": 24
   },
   {
-    "id":40,
-    "name":"شال و روسری",
-    "slug":"accessories-scarf",
-    "description":null,
-    "image_url":null,
-    "parent_id":24.0
+    "id": 40,
+    "name": "شال و روسری",
+    "slug": "accessories-scarf",
+    "description": null,
+    "image_url": "https://i.imgur.com/TMW5Zhc_d.jpg",
+    "parent_id": 24
   }
 ]

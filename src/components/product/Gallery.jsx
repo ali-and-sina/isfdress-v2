@@ -57,6 +57,7 @@ function Gallery({
             src={product.images[galleryIndex]}
             alt={`${product.name} ${galleryIndex + 1}`}
             fill
+            unoptimized
             className="object-contain"
             sizes="(max-width: 768px) 100vw, 80vw"
             priority
@@ -97,6 +98,7 @@ function Gallery({
               src={img}
               alt={`${product.name} ${index + 1}`}
               fill
+              unoptimized
               className="object-cover"
               sizes="64px"
               loading="lazy"

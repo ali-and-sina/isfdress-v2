@@ -34,10 +34,17 @@ const colorMap = {
   "زرد مایل به سبز": "#a3e635",
 };
 
-export default function ProductDetails({ product, category, subCategory, user }) {
+export default function ProductDetails({
+  product,
+  category,
+  subCategory,
+  user,
+}) {
   const { addToCart, items, incrementItem, decrementItem, removeFromCart } =
     useCart();
   const item = items ? items.find((item) => item.id === product.id) : null;
+
+  console.table(product);
 
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedSize, setSelectedSize] = useState(null);
@@ -103,7 +110,7 @@ export default function ProductDetails({ product, category, subCategory, user })
     setGalleryIndex((prev) => (prev + 1) % product.images.length);
   const prevImage = () =>
     setGalleryIndex(
-      (prev) => (prev - 1 + product.images.length) % product.images.length
+      (prev) => (prev - 1 + product.images.length) % product.images.length,
     );
 
   useEffect(() => {
@@ -186,7 +193,7 @@ export default function ProductDetails({ product, category, subCategory, user })
                 <span className="absolute top-3 right-3 bg-rose-300/90 text-white text-xs px-3 py-1.5 rounded-full backdrop-blur-sm z-10">
                   {Math.round(
                     ((product.oldPrice - product.price) / product.oldPrice) *
-                      100
+                      100,
                   )}
                   ٪ تخفیف
                 </span>

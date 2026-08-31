@@ -1,12 +1,10 @@
-import Navbar from "@/components/navbar/navbar";
-import "./globals.css";
-import localFont from "next/font/local";
-import { CartProvider } from "@/context/CartContext";
-import { getNavCategoriesCached } from "@/lib/categories";
-import AuthProvider from "./providers/SessionProvider";
 import { AppRouterCacheProvider } from "@mui/material-nextjs/v15-appRouter";
 import { ThemeProvider } from "@mui/material/styles";
 import theme from "@/theme/theme";
+import { CartProvider } from "@/context/CartContext";
+import AuthProvider from "./providers/SessionProvider";
+import localFont from "next/font/local";
+import "./globals.css";
 
 const vazirmatn = localFont({
   src: "../fonts/Vazirmatn[wght].woff2",
@@ -20,19 +18,14 @@ export const metadata = {
   description: "سایت من",
 };
 
-export default async function RootLayout({ children }) {
-  const categories = await getNavCategoriesCached();
-
+export default function RootLayout({ children }) {
   return (
     <html lang="fa" dir="rtl">
       <body className={vazirmatn.className}>
         <AppRouterCacheProvider>
           <ThemeProvider theme={theme}>
             <CartProvider>
-              <AuthProvider>
-                <Navbar categories={categories} />
-                {children}
-              </AuthProvider>
+              <AuthProvider>{children}</AuthProvider>
             </CartProvider>
           </ThemeProvider>
         </AppRouterCacheProvider>

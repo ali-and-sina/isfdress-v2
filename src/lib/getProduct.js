@@ -6,7 +6,7 @@ export async function getProduct(slug) {
             is_on_special_list, category_id
      FROM products
      WHERE slug = $1`,
-    [slug]
+    [slug],
   );
 
   const product = productRows[0];
@@ -18,13 +18,13 @@ export async function getProduct(slug) {
        FROM product_images
        WHERE product_id = $1
        ORDER BY is_thumbnail DESC, id ASC`,
-      [product.id]
+      [product.id],
     ),
     query(
       `SELECT color, size, stock
        FROM product_variants
        WHERE product_id = $1`,
-      [product.id]
+      [product.id],
     ),
   ]);
 

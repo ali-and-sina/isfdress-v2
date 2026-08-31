@@ -5,6 +5,7 @@ import ProductGrid from "@/components/product/ProductGrid";
 import ProductFilters from "@/components/product/ProductFilters";
 import Pagination from "@/components/product/Pagination";
 import Breadcrumb from "@/components/product/Breadcrumb";
+import { getProduct } from "@/lib/getProduct";
 
 export default async function CategoryPage({ params, searchParams }) {
   const { category: categorySlug } = await params;

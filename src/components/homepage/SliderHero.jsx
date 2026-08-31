@@ -34,7 +34,7 @@ export default function HeroSlider() {
                 className="object-cover transition-transform duration-700 group-hover:scale-105"
                 priority
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+              <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent" />
               <div className="absolute bottom-12 left-12 right-12 md:left-20 md:right-auto md:max-w-lg text-white space-y-4">
                 <span className="inline-block px-3 py-1 border border-white/30 text-xs uppercase tracking-[0.2em] backdrop-blur-sm">
                   محصول ویژه

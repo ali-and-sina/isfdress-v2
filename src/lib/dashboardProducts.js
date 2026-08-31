@@ -1,6 +1,6 @@
 import { query } from "./db";
 
-export async function getProducts({
+export async function dashboardProducts({
   page = 1,
   sort = "newest",
   onlySpecialProducts = false,
@@ -83,28 +83,49 @@ export async function getProducts({
   //  Products Query
 
   const productsSql = `
-    SELECT
-      p.id,
-      p.name,
-      p.original_price,
-      p.price,
-      p.slug,
-      p.is_on_special_list,
-      pi.url AS thumbnail
+  SELECT
+    p.id,
+    p.name,
+    p.original_price,
+    p.price,
+    p.slug,
+    p.is_on_special_list,
+    pi.url AS thumbnail,
 
-    FROM products p
+    COALESCE(
+      json_agg(
+        json_build_object(
+          'id', pv.id,
+          'color', pv.color,
+          'size', pv.size,
+          'description', pv.description,
+          'stock', pv.stock
+        )
+      ) FILTER (WHERE pv.id IS NOT NULL),
+      '[]'
+    ) AS variants
 
-    LEFT JOIN product_images pi
-      ON p.id = pi.product_id
-      AND pi.is_thumbnail = TRUE
+  FROM products p
 
-    ${whereClause}
+  LEFT JOIN product_images pi
+    ON p.id = pi.product_id
+    AND pi.is_thumbnail = TRUE
 
-    ${orderBy}
+  LEFT JOIN product_variants pv
+    ON p.id = pv.product_id
+    AND pv.deleted_at IS NULL
 
-    LIMIT $${limitIndex}
-    OFFSET $${offsetIndex}
-  `;
+  ${whereClause}
+
+  GROUP BY
+    p.id,
+    pi.url
+
+  ${orderBy}
+
+  LIMIT $${limitIndex}
+  OFFSET $${offsetIndex}
+`;
 
   // ---------------- Execute ----------------
 

@@ -4,7 +4,7 @@ import Link from "next/link";
 export default function ProductCard({ product }) {
   const hasDiscount = product.price < product.original_price;
   const percentageOfDiscount = Math.round(
-    ((product.original_price - product.price) / product.original_price) * 100
+    ((product.original_price - product.price) / product.original_price) * 100,
   );
   return (
     <Link
@@ -15,6 +15,7 @@ export default function ProductCard({ product }) {
         <Image
           src={product.thumbnail}
           alt={product.name}
+          unoptimized
           fill
           className="object-cover transition-transform duration-300 group-hover:scale-105"
           sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
