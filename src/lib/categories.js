@@ -6,7 +6,7 @@ export async function getCategoryBySlug(slug) {
     `SELECT id, name, slug, description, image_url
      FROM categories
      WHERE slug = $1 AND parent_id IS NULL`,
-    [slug]
+    [slug],
   );
   return rows[0] || null;
 }
@@ -17,7 +17,7 @@ export async function getSubCategories(parentId) {
      FROM categories
      WHERE parent_id = $1
      ORDER BY id ASC`,
-    [parentId]
+    [parentId],
   );
   return rows;
 }
@@ -27,7 +27,7 @@ export async function getSubCategoryBySlug(parentId, slug) {
     `SELECT id, name, slug, description
      FROM categories
      WHERE parent_id = $1 AND slug = $2`,
-    [parentId, slug]
+    [parentId, slug],
   );
   return rows[0] || null;
 }
@@ -73,8 +73,25 @@ export async function getNavCategories() {
 export const getNavCategoriesCached = unstable_cache(
   getNavCategories,
   ["nav-categories"],
-  { revalidate: 3600 }
+  { revalidate: 3600 },
 );
+
+export async function getCategories() {
+  const { rows } = await query(`
+    SELECT
+      id,
+      name,
+      slug,
+      description,
+      image_url,
+      parent_id
+    FROM categories
+    ORDER BY id ASC
+  `);
+
+  return rows;
+}
+
 export async function getCategoryPathByLeafId(leafId) {
   const { rows } = await query(
     `SELECT
@@ -83,7 +100,7 @@ export async function getCategoryPathByLeafId(leafId) {
      FROM categories leaf
      LEFT JOIN categories parent ON parent.id = leaf.parent_id
      WHERE leaf.id = $1`,
-    [leafId]
+    [leafId],
   );
 
   const row = rows[0];

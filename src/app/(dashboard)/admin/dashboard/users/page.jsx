@@ -22,8 +22,11 @@ const fetcher = (url) => fetch(url).then((res) => res.json());
 export default function UsersPage() {
   const { data, isLoading } = useSWR("/api/admin/users", fetcher);
   const [search, setSearch] = useState("");
-  const [selection, setSelection] = useState([]);
-  const [confirmBlock, setConfirmBlock] = useState(null); // { ids, blocked } | null
+  const [selection, setSelection] = useState({
+    type: "include",
+    ids: new Set(),
+  });
+  const [confirmBlock, setConfirmBlock] = useState(null);
   const [toast, setToast] = useState(null);
 
   const rows = useMemo(() => {
@@ -34,7 +37,7 @@ export default function UsersPage() {
       (u) =>
         u.fullName?.toLowerCase().includes(q) ||
         u.phone?.includes(q) ||
-        u.email?.toLowerCase().includes(q)
+        u.email?.toLowerCase().includes(q),
     );
   }, [data, search]);
 
@@ -85,7 +88,9 @@ export default function UsersPage() {
       u.blocked ? "مسدود" : "فعال",
     ]);
     const csv = [header, ...csvRows].map((r) => r.join(",")).join("\n");
-    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+    const blob = new Blob(["\uFEFF" + csv], {
+      type: "text/csv;charset=utf-8;",
+    });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -125,7 +130,10 @@ export default function UsersPage() {
             size="small"
             checked={!params.value}
             onChange={(e) =>
-              setConfirmBlock({ ids: [params.row.id], blocked: !e.target.checked })
+              setConfirmBlock({
+                ids: [params.row.id],
+                blocked: !e.target.checked,
+              })
             }
           />
           <Chip
@@ -145,10 +153,10 @@ export default function UsersPage() {
         searchValue={search}
         onSearchChange={setSearch}
         searchPlaceholder="جستجو بر اساس نام، تلفن یا ایمیل..."
-        selectedCount={selection.length}
+        selectedCount={selection.ids.size}
         onExport={handleExport}
         extraActions={
-          selection.length > 0 && (
+          selection.ids.size > 0 && (
             <Button
               size="small"
               color="warning"
@@ -190,7 +198,9 @@ export default function UsersPage() {
           <Button
             color={confirmBlock?.blocked ? "error" : "success"}
             variant="contained"
-            onClick={() => handleBulkBlock(confirmBlock.ids, confirmBlock.blocked)}
+            onClick={() =>
+              handleBulkBlock(confirmBlock.ids, confirmBlock.blocked)
+            }
           >
             تایید
           </Button>

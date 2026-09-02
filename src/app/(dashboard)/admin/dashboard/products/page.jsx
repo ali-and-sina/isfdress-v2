@@ -29,8 +29,11 @@ export default function ProductsPage() {
   const router = useRouter();
   const { data, isLoading } = useSWR("/api/admin/products", fetcher);
   const [search, setSearch] = useState("");
-  const [selection, setSelection] = useState([]);
-  const [confirmDelete, setConfirmDelete] = useState(null); // { ids: [...] } | null
+  const [selection, setSelection] = useState({
+    type: "include",
+    ids: new Set(),
+  });
+  const [confirmDelete, setConfirmDelete] = useState(null);
   const [toast, setToast] = useState(null);
 
   const rows = useMemo(() => {
@@ -41,37 +44,42 @@ export default function ProductsPage() {
       (p) =>
         p.name?.toLowerCase().includes(q) ||
         p.category?.toLowerCase().includes(q) ||
-        String(p.id).includes(q)
+        String(p.id).includes(q),
     );
   }, [data, search]);
 
-  const handleDelete = useCallback(
-    async (ids) => {
-      try {
-        const res = await fetch("/api/admin/products", {
-          method: "DELETE",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ids }),
-        });
-        if (!res.ok) throw new Error();
-        setToast({ severity: "success", message: `${ids.length} محصول حذف شد` });
-        setSelection([]);
-        mutate("/api/admin/products");
-      } catch {
-        setToast({ severity: "error", message: "حذف محصول با خطا مواجه شد" });
-      } finally {
-        setConfirmDelete(null);
-      }
-    },
-    []
-  );
+  const handleDelete = useCallback(async (ids) => {
+    try {
+      const res = await fetch("/api/admin/products", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids }),
+      });
+      if (!res.ok) throw new Error();
+      setToast({ severity: "success", message: `${ids.length} محصول حذف شد` });
+      setSelection([]);
+      mutate("/api/admin/products");
+    } catch {
+      setToast({ severity: "error", message: "حذف محصول با خطا مواجه شد" });
+    } finally {
+      setConfirmDelete(null);
+    }
+  }, []);
 
   const handleExport = useCallback(() => {
     const list = rows;
     const header = ["شناسه", "نام", "دسته", "قیمت", "موجودی"];
-    const csvRows = list.map((p) => [p.id, p.name, p.category, p.price, p.stock]);
+    const csvRows = list.map((p) => [
+      p.id,
+      p.name,
+      p.category,
+      p.price,
+      p.stock,
+    ]);
     const csv = [header, ...csvRows].map((r) => r.join(",")).join("\n");
-    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+    const blob = new Blob(["\uFEFF" + csv], {
+      type: "text/csv;charset=utf-8;",
+    });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -119,7 +127,9 @@ export default function ProductsPage() {
           <Tooltip title="ویرایش">
             <IconButton
               size="small"
-              onClick={() => router.push(`/dashboard/products/${params.row.id}`)}
+              onClick={() =>
+                router.push(`/dashboard/products/${params.row.id}`)
+              }
             >
               <EditIcon fontSize="small" />
             </IconButton>
@@ -144,7 +154,7 @@ export default function ProductsPage() {
         searchValue={search}
         onSearchChange={setSearch}
         searchPlaceholder="جستجوی محصول..."
-        selectedCount={selection.length}
+        selectedCount={selection.ids.size}
         onBulkDelete={() => setConfirmDelete({ ids: selection })}
         onExport={handleExport}
         addLabel="محصول جدید"
@@ -155,7 +165,7 @@ export default function ProductsPage() {
         <DataGrid
           rows={rows}
           columns={columns}
-          loading={isLoading}
+          // loading={isLoading}
           checkboxSelection
           disableRowSelectionOnClick
           rowSelectionModel={selection}
