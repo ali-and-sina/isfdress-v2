@@ -17,7 +17,7 @@ import Alert from "@mui/material/Alert";
 import { DataGrid } from "@mui/x-data-grid";
 import EditIcon from "@mui/icons-material/EditOutlined";
 import DeleteIcon from "@mui/icons-material/DeleteOutlined";
-import DataToolbar from "@/components/dashboard/DataToolbar";
+import DataToolbar from "@/components/dashboard/dashboard/DataToolbar";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 

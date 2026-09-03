@@ -22,7 +22,7 @@ import { DataGrid } from "@mui/x-data-grid";
 import EditIcon from "@mui/icons-material/EditOutlined";
 import DeleteIcon from "@mui/icons-material/DeleteOutlined";
 
-import DataToolbar from "@/components/dashboard/DataToolbar";
+import DataToolbar from "@/components/dashboard/dashboard/DataToolbar";
 
 export default function Categories({ categories }) {
   const router = useRouter();

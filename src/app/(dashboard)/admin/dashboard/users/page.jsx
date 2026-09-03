@@ -15,7 +15,7 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogActions from "@mui/material/DialogActions";
 import Button from "@mui/material/Button";
 import { DataGrid } from "@mui/x-data-grid";
-import DataToolbar from "@/components/dashboard/DataToolbar";
+import DataToolbar from "@/components/dashboard/dashboard/DataToolbar";
 
 const fetcher = (url) => fetch(url).then((res) => res.json());
 
