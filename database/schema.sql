@@ -1,4 +1,19 @@
 
+CREATE TABLE IF NOT EXISTS users (
+    id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+
+    google_id TEXT UNIQUE,
+    email TEXT NOT NULL UNIQUE,
+    name TEXT,
+    avatar_url TEXT,
+
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    deleted_at TIMESTAMP
+);
+
+
 
 CREATE TABLE IF NOT EXISTS categories (
     id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -87,4 +102,39 @@ CREATE TABLE IF NOT EXISTS product_variants (
 
     CONSTRAINT unique_product_variant
         UNIQUE(product_id, color, size)
+);
+
+CREATE TABLE IF NOT EXISTS orders (
+    id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+
+    user_id INTEGER NOT NULL
+        REFERENCES users(id)
+        ON DELETE RESTRICT,
+
+    status TEXT NOT NULL DEFAULT 'pending'
+        CHECK (status IN ('pending', 'paid', 'shipped', 'delivered', 'cancelled')),
+
+    total_price DECIMAL(10,2) NOT NULL CHECK (total_price >= 0),
+
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS order_items (
+    id INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+
+    order_id INTEGER NOT NULL
+        REFERENCES orders(id)
+        ON DELETE CASCADE,
+
+    product_id INTEGER NOT NULL
+        REFERENCES products(id)
+        ON DELETE RESTRICT,
+
+    variant_id INTEGER
+        REFERENCES product_variants(id)
+        ON DELETE RESTRICT,
+
+    quantity INTEGER NOT NULL CHECK (quantity > 0),
+    unit_price DECIMAL(10,2) NOT NULL CHECK (unit_price >= 0)
 );

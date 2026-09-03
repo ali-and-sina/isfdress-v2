@@ -24,7 +24,7 @@ export async function getProducts({
 
   if (onlyOnSale) {
     conditions.push(
-      "p.original_price IS NOT NULL AND p.price < p.original_price",
+      "p.original_price IS NOT NULL AND p.price < p.original_price"
     );
   }
 
@@ -90,13 +90,21 @@ export async function getProducts({
       p.price,
       p.slug,
       p.is_on_special_list,
-      pi.url AS thumbnail
+      pi.url AS thumbnail,
+      COALESCE(pv.total_stock, 0) AS stock,
+      COALESCE(pv.total_stock, 0) > 0 AS "inStock"
 
     FROM products p
 
     LEFT JOIN product_images pi
       ON p.id = pi.product_id
       AND pi.is_thumbnail = TRUE
+
+    LEFT JOIN (
+      SELECT product_id, SUM(stock) AS total_stock
+      FROM product_variants
+      GROUP BY product_id
+    ) pv ON pv.product_id = p.id
 
     ${whereClause}
 
