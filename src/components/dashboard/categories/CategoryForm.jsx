@@ -94,8 +94,6 @@ export default function CategoryForm({ mode = "create", initialData = {} }) {
 
     console.log(formData);
 
-    // بعداً اینجا Server Action را صدا می‌زنیم.
-
     router.push("/admin/dashboard/categories");
   }
 
