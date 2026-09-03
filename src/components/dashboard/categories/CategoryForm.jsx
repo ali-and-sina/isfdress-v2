@@ -108,11 +108,11 @@ export default function CategoryForm({ mode = "create", initialData = {} }) {
           xs: "column",
           sm: "row",
         }}
-        alignItems={{
+        alignitems={{
           xs: "flex-start",
           sm: "center",
         }}
-        justifyContent="space-between"
+        justifycontent="space-between"
         spacing={2}
         sx={{
           mb: 4,
@@ -124,12 +124,19 @@ export default function CategoryForm({ mode = "create", initialData = {} }) {
             onClick={() => router.back()}
             sx={{
               mb: 1,
+              gap: 1,
             }}
           >
             بازگشت
           </Button>
 
-          <Typography variant="h4" fontWeight={700}>
+          <Typography
+            variant="h4"
+            fontWeight={700}
+            sx={{
+              marginInlineEnd: 1,
+            }}
+          >
             {isEdit ? "ویرایش دسته‌بندی" : "ایجاد دسته‌بندی جدید"}
           </Typography>
 
@@ -150,6 +157,11 @@ export default function CategoryForm({ mode = "create", initialData = {} }) {
           type="submit"
           variant="contained"
           startIcon={<SaveAltOutlinedIcon />}
+          sx={{
+            width: "fit-content",
+            height: "fit-content",
+            gap: 1,
+          }}
         >
           {isEdit ? "ذخیره تغییرات" : "ایجاد دسته‌بندی"}
         </Button>
@@ -242,8 +254,8 @@ export default function CategoryForm({ mode = "create", initialData = {} }) {
           >
             <Stack
               direction="row"
-              justifyContent="space-between"
-              alignItems="center"
+              justifycontent="space-between"
+              alignitems="center"
               sx={{
                 mb: 3,
               }}
