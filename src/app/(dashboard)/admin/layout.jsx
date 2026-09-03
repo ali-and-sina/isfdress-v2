@@ -1,6 +1,5 @@
-import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
-import DashboardShell from "@/components/dashboard/DashboardShell";
+import DashboardShell from "@/components/dashboard/dashboard/DashboardShell";
 import { auth } from "@/lib/auth";
 
 export const metadata = {
@@ -9,7 +8,6 @@ export const metadata = {
 
 export default async function AdminLayout({ children }) {
   const session = await auth();
-  console.table(session);
 
   if (!session?.user) {
     redirect("/login?callbackUrl=/admin/dashboard");

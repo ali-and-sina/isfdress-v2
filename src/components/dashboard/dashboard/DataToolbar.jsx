@@ -36,7 +36,7 @@ export default function DataToolbar({
         value={searchValue}
         onChange={(e) => onSearchChange(e.target.value)}
         sx={{ minWidth: 240, bgcolor: "background.paper" }}
-        InputProps={{
+        inputprops={{
           startAdornment: (
             <InputAdornment position="start">
               <SearchIcon fontSize="small" />

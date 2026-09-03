@@ -1,4 +1,3 @@
-"use client";
 import { createTheme } from "@mui/material/styles";
 import { faIR } from "@mui/material/locale";
 
@@ -91,7 +90,7 @@ const dashboardTheme = createTheme(
       },
     },
   },
-  faIR
+  faIR,
 );
 
 export default dashboardTheme;

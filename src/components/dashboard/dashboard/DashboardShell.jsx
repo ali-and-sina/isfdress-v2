@@ -27,12 +27,18 @@ import LogoutIcon from "@mui/icons-material/LogoutOutlined";
 import StorefrontIcon from "@mui/icons-material/StorefrontOutlined";
 import dashboardTheme from "@/lib/dashboardTheme";
 import { ThemeProvider } from "@mui/material/styles";
+import CategoryOutlinedIcon from "@mui/icons-material/CategoryOutlined";
 
 const DRAWER_WIDTH = 260;
 
 const NAV_ITEMS = [
   { label: "نمای کلی", href: "/admin/dashboard", icon: DashboardIcon },
   { label: "محصولات", href: "/admin/dashboard/products", icon: Inventory2Icon },
+  {
+    label: "دسته بندی ها",
+    href: "/admin/dashboard/categories",
+    icon: CategoryOutlinedIcon,
+  },
   { label: "سفارشات", href: "/admin/dashboard/orders", icon: ReceiptLongIcon },
   { label: "کاربران", href: "/admin/dashboard/users", icon: PeopleIcon },
 ];
