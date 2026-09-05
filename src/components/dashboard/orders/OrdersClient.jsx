@@ -29,45 +29,6 @@ import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import { formatPrice } from "@/lib/products";
 import { useRouter } from "next/navigation";
 
-const orders = [
-  {
-    id: 1001,
-    customer: "علی رضایی",
-    phone: "۰۹۱۲۱۲۳۴۵۶۷",
-    total: 2450000,
-    status: "processing",
-    date: "۱۴۰۵/۰۶/۰۸",
-    items: 3,
-  },
-  {
-    id: 1002,
-    customer: "محمد احمدی",
-    phone: "۰۹۳۵۱۲۳۴۵۶۷",
-    total: 1890000,
-    status: "shipped",
-    date: "۱۴۰۵/۰۶/۰۷",
-    items: 2,
-  },
-  {
-    id: 1003,
-    customer: "رضا کریمی",
-    phone: "۰۹۱۹۱۲۳۴۵۶۷",
-    total: 3200000,
-    status: "delivered",
-    date: "۱۴۰۵/۰۶/۰۶",
-    items: 5,
-  },
-  {
-    id: 1004,
-    customer: "سارا محمدی",
-    phone: "۰۹۱۰۱۲۳۴۵۶۷",
-    total: 980000,
-    status: "cancelled",
-    date: "۱۴۰۵/۰۶/۰۵",
-    items: 1,
-  },
-];
-
 const statusConfig = {
   processing: {
     label: "در حال پردازش",
@@ -90,7 +51,8 @@ const statusConfig = {
   },
 };
 
-export default function OrdersClient() {
+export default function OrdersClient({ orders }) {
+  console.log(orders);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
 

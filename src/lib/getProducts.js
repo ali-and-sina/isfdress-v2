@@ -8,7 +8,7 @@ export async function getProducts({
   onlyOnSale = false,
   searchQuery = null,
 } = {}) {
-  const conditions = [];
+  const conditions = ["p.deleted_at IS NULL"];
   const values = [];
 
   //  Filters
@@ -24,7 +24,7 @@ export async function getProducts({
 
   if (onlyOnSale) {
     conditions.push(
-      "p.original_price IS NOT NULL AND p.price < p.original_price"
+      "p.original_price IS NOT NULL AND p.price < p.original_price",
     );
   }
 
@@ -97,14 +97,17 @@ export async function getProducts({
     FROM products p
 
     LEFT JOIN product_images pi
-      ON p.id = pi.product_id
-      AND pi.is_thumbnail = TRUE
+    ON p.id = pi.product_id
+    AND pi.is_thumbnail = TRUE
 
-    LEFT JOIN (
-      SELECT product_id, SUM(stock) AS total_stock
-      FROM product_variants
-      GROUP BY product_id
-    ) pv ON pv.product_id = p.id
+   LEFT JOIN (
+    SELECT
+    product_id,
+    SUM(stock) AS total_stock
+    FROM product_variants
+    WHERE deleted_at IS NULL
+    GROUP BY product_id)
+    pv ON pv.product_id = p.id
 
     ${whereClause}
 

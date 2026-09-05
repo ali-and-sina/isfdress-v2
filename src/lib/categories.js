@@ -22,6 +22,25 @@ export async function getSubCategories(parentId) {
   return rows;
 }
 
+export async function getCategoryById(id) {
+  const { rows } = await query(
+    `
+      SELECT
+        id,
+        name,
+        slug,
+        description,
+        image_url,
+        parent_id
+      FROM categories
+      WHERE id = $1
+    `,
+    [id],
+  );
+
+  return rows[0] || null;
+}
+
 export async function getSubCategoryBySlug(parentId, slug) {
   const { rows } = await query(
     `SELECT id, name, slug, description
