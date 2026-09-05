@@ -3,7 +3,7 @@ import { query } from "./db";
 export async function getProduct(slug) {
   const { rows: productRows } = await query(
     `SELECT id, name, slug, description, price, original_price,
-            is_on_special_list, category_id
+     is_on_special_list, category_id
      FROM products
      WHERE slug = $1`,
     [slug],
@@ -22,8 +22,9 @@ export async function getProduct(slug) {
     ),
     query(
       `SELECT color, size, stock
-       FROM product_variants
-       WHERE product_id = $1`,
+      FROM product_variants
+      WHERE product_id = $1
+      AND deleted_at IS NULL`,
       [product.id],
     ),
   ]);

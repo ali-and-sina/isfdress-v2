@@ -1,6 +1,5 @@
 "use client";
-import { useCallback, useMemo, useState } from "react";
-import useSWR, { mutate } from "swr";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import Box from "@mui/material/Box";
@@ -23,6 +22,7 @@ import EditIcon from "@mui/icons-material/EditOutlined";
 import DeleteIcon from "@mui/icons-material/DeleteOutlined";
 
 import DataToolbar from "@/components/dashboard/dashboard/DataToolbar";
+import { deleteCategory } from "@/actions/category.actions";
 
 export default function Categories({ categories }) {
   const router = useRouter();
@@ -50,41 +50,6 @@ export default function Categories({ categories }) {
         String(category.id).includes(q),
     );
   }, [categories, search]);
-
-  const handleDelete = useCallback(async (ids) => {
-    try {
-      const res = await fetch("/api/admin/categories", {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ ids }),
-      });
-
-      if (!res.ok) {
-        throw new Error("Delete failed");
-      }
-
-      setToast({
-        severity: "success",
-        message: `${ids.length} دسته‌بندی حذف شد`,
-      });
-
-      setSelection({
-        type: "include",
-        ids: new Set(),
-      });
-
-      mutate("/api/admin/categories");
-    } catch {
-      setToast({
-        severity: "error",
-        message: "حذف دسته‌بندی با خطا مواجه شد",
-      });
-    } finally {
-      setConfirmDelete(null);
-    }
-  }, []);
 
   const columns = [
     {
@@ -164,7 +129,7 @@ export default function Categories({ categories }) {
             <IconButton
               size="small"
               onClick={() =>
-                router.push(`/admin/dashboard/categories/${params.row.slug}`)
+                router.push(`/admin/dashboard/categories/${params.row.id}`)
               }
             >
               <EditIcon fontSize="small" />
@@ -283,7 +248,7 @@ export default function Categories({ categories }) {
             color="error"
             variant="contained"
             disabled={!confirmDelete?.ids.length}
-            onClick={() => handleDelete(confirmDelete.ids)}
+            onClick={deleteCategory}
           >
             حذف
           </Button>

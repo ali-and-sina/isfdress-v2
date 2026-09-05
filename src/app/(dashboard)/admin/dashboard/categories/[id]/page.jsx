@@ -1,40 +1,26 @@
 import CategoryForm from "@/components/dashboard/categories/CategoryForm";
+import { getCategories, getCategoryById } from "@/lib/categories";
 
 export default async function EditCategoryPage({ params }) {
   const { id } = await params;
 
-  /*
-بعداً:
+  const category = await getCategoryById(id);
 
+  if (!category) {
+    return <div>دسته‌بندی پیدا نشد.</div>;
+  }
 
-const category =
-  await getCategoryById(id);
+  const categories = await getCategories();
 
-اگر پیدا نشد:
-notFound();
+  const parentCategories = categories.filter(
+    (item) => item.parent_id === null && item.id !== category.id,
+  );
 
-
-*/
-
-  const category = {
-    id,
-
-    name: "شال و روسری",
-
-    slug: "accessories-scarf",
-
-    description: "انواع شال و روسری زنانه",
-
-    images: [
-      {
-        id: "image-1",
-
-        preview: "https://i.imgur.com/TMW5Zhc_d.jpg",
-
-        isNew: false,
-      },
-    ],
-  };
-
-  return <CategoryForm mode="edit" initialData={category} />;
+  return (
+    <CategoryForm
+      mode="edit"
+      initialData={category}
+      parentCategories={parentCategories}
+    />
+  );
 }
