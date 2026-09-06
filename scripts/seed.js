@@ -7,7 +7,19 @@ import variants from "../database/product_variants.json" with { type: "json" };
 import orders from "../database/orders.json" with { type: "json" };
 import orderItems from "../database/order_items.json" with { type: "json" };
 
-
+async function resetTables() {
+  await query(`
+    TRUNCATE TABLE
+      order_items,
+      orders,
+      product_variants,
+      product_images,
+      products,
+      categories,
+      users
+    RESTART IDENTITY CASCADE
+  `);
+}
 async function insertUsers() {
   for (const u of users) {
     await query(
@@ -112,7 +124,7 @@ async function fixSequence(table) {
     [table]
   );
 }
-
+await resetTables()
 await insertUsers();
 await insertCategories();
 await insertProducts();
