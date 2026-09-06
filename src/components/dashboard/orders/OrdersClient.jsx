@@ -52,7 +52,6 @@ const statusConfig = {
 };
 
 export default function OrdersClient({ orders }) {
-  console.log(orders);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
 

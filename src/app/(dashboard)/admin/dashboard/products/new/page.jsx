@@ -1,5 +1,8 @@
-import ProductForm from "@/components/dashboard/ProductForm";
+import ProductForm from "@/components/dashboard/products/ProductForm";
+import { getCategories } from "@/lib/categories";
 
-export default function NewProductPage() {
-  return <ProductForm />;
+export default async function NewProductPage() {
+  const categories = await getCategories();
+
+  return <ProductForm mode="create" categories={categories} />;
 }

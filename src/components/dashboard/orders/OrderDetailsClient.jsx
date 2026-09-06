@@ -126,6 +126,7 @@ export default function OrderDetailsClient({ order }) {
             onClick={() => router.back()}
             sx={{
               mb: 1,
+              gap: 1,
             }}
           >
             بازگشت
@@ -159,11 +160,7 @@ export default function OrderDetailsClient({ order }) {
           gap: 3,
         }}
       >
-        {/* Main Content */}
-
         <Stack spacing={3}>
-          {/* Order Items */}
-
           <Paper
             elevation={0}
             sx={{
@@ -247,8 +244,6 @@ export default function OrderDetailsClient({ order }) {
             </Stack>
           </Paper>
 
-          {/* Customer */}
-
           <Paper
             elevation={0}
             sx={{
@@ -286,8 +281,6 @@ export default function OrderDetailsClient({ order }) {
               </Box>
             </Stack>
           </Paper>
-
-          {/* Address */}
 
           <Paper
             elevation={0}
@@ -349,11 +342,7 @@ export default function OrderDetailsClient({ order }) {
           </Paper>
         </Stack>
 
-        {/* Sidebar */}
-
         <Stack spacing={3}>
-          {/* Order Summary */}
-
           <Paper
             elevation={0}
             sx={{
@@ -402,8 +391,6 @@ export default function OrderDetailsClient({ order }) {
             </Stack>
           </Paper>
 
-          {/* Change Status */}
-
           <Paper
             elevation={0}
             sx={{
@@ -439,8 +426,6 @@ export default function OrderDetailsClient({ order }) {
           </Paper>
         </Stack>
       </Box>
-
-      {/* Toast */}
 
       <Snackbar
         open={!!toast}

@@ -1,13 +1,22 @@
 import { notFound } from "next/navigation";
-import ProductForm from "@/components/dashboard/ProductForm";
-import { db } from "@/lib/db";
+
+import { getCategories } from "@/lib/categories";
+import { getProductById } from "@/lib/products";
+import ProductForm from "@/components/dashboard/products/ProductForm";
 
 export default async function EditProductPage({ params }) {
-  const product = await db.product.findUnique({
-    where: { id: Number(params.id) },
-  });
+  const { id } = await params;
 
-  if (!product) notFound();
+  const [product, categories] = await Promise.all([
+    getProductById(id),
+    getCategories(),
+  ]);
 
-  return <ProductForm initialData={product} productId={product.id} />;
+  if (!product) {
+    notFound();
+  }
+
+  return (
+    <ProductForm mode="edit" initialData={product} categories={categories} />
+  );
 }
