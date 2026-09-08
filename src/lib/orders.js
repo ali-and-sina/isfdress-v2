@@ -39,7 +39,7 @@ export async function getOrderById(id) {
         v.color AS variant_color,
         v.size AS variant_size,
 
-        pi.url AS product_image
+        pi.url AS product_images
 
       FROM orders o
 
@@ -52,7 +52,7 @@ export async function getOrderById(id) {
       LEFT JOIN product_variants v
         ON v.id = oi.variant_id
 
-      LEFT JOIN product_image pi
+      LEFT JOIN product_images pi
         ON pi.product_id = p.id
         AND pi.is_thumbnail = 't'
 
@@ -87,7 +87,7 @@ export async function getOrderById(id) {
           id: row.product_id,
           name: row.product_name,
           slug: row.product_slug,
-          image: row.product_image,
+          image: row.product_images,
         },
 
         variant: row.variant_id
