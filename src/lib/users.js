@@ -1,99 +1,94 @@
-import { query } from "./db";
+import { createClient } from "@/lib/supabase/server";
 
 export async function getUsers() {
-  const { rows } = await query(`
-    SELECT
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("users")
+    .select(
+      `
       id,
-      google_id,
+      email,
+      name,
+      avatar_url,
+      created_at
+    `,
+    )
+    .is("deleted_at", null)
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+
+  return data;
+}
+
+export async function getUserById(id) {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("users")
+    .select(
+      `
+      id,
       email,
       name,
       avatar_url,
       created_at,
-      deleted_at
-    FROM users
-    ORDER BY created_at DESC
-  `);
-
-  return rows;
-}
-
-export async function getUserById(id) {
-  const { rows } = await query(
-    `
-      SELECT
-        id,
-        google_id,
-        email,
-        name,
-        avatar_url,
-        created_at,
-        deleted_at
-      FROM users
-      WHERE id = $1
+      updated_at
     `,
-    [id],
-  );
+    )
+    .eq("id", id)
+    .is("deleted_at", null)
+    .maybeSingle();
 
-  return rows[0] || null;
+  if (error) {
+    throw error;
+  }
+
+  return data;
 }
 
 export async function getUserOrders(userId) {
-  const { rows } = await query(
-    `
-      SELECT
-        id,
-        status,
-        total_price,
-        created_at,
-        updated_at
-      FROM orders
-      WHERE user_id = $1
-      ORDER BY created_at DESC
-    `,
-    [userId],
-  );
+  const supabase = await createClient();
 
-  return rows;
+  const { data, error } = await supabase
+    .from("orders")
+    .select(
+      `
+      id,
+      status,
+      total_price,
+      created_at,
+      updated_at
+    `,
+    )
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+
+  return data;
 }
 
 export async function getUserStats(userId) {
-  const { rows } = await query(
-    `
-      SELECT
-        COUNT(*)::int AS total_orders,
+  const supabase = await createClient();
 
-        COUNT(*) FILTER (
-          WHERE status = 'pending'
-        )::int AS pending_orders,
+  const { data, error } = await supabase
+    .from("orders")
+    .select("status, total_price")
+    .eq("user_id", userId);
 
-        COUNT(*) FILTER (
-          WHERE status = 'paid'
-        )::int AS paid_orders,
+  if (error) throw error;
 
-        COUNT(*) FILTER (
-          WHERE status = 'shipped'
-        )::int AS shipped_orders,
-
-        COUNT(*) FILTER (
-          WHERE status = 'delivered'
-        )::int AS delivered_orders,
-
-        COUNT(*) FILTER (
-          WHERE status = 'cancelled'
-        )::int AS cancelled_orders,
-
-        COALESCE(
-          SUM(total_price) FILTER (
-            WHERE status != 'cancelled'
-          ),
-          0
-        ) AS total_spent
-
-      FROM orders
-      WHERE user_id = $1
-    `,
-    [userId],
-  );
-
-  return rows[0];
+  return {
+    total_orders: data.length,
+    pending_orders: data.filter((o) => o.status === "pending").length,
+    paid_orders: data.filter((o) => o.status === "paid").length,
+    shipped_orders: data.filter((o) => o.status === "shipped").length,
+    delivered_orders: data.filter((o) => o.status === "delivered").length,
+    cancelled_orders: data.filter((o) => o.status === "cancelled").length,
+    total_spent: data
+      .filter((o) => o.status !== "cancelled")
+      .reduce((sum, o) => sum + Number(o.total_price || 0), 0),
+  };
 }

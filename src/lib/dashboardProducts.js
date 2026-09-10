@@ -1,4 +1,4 @@
-import { query } from "./db";
+import { createClient } from "@/lib/supabase/server";
 
 export async function dashboardProducts({
   page = 1,
@@ -8,138 +8,100 @@ export async function dashboardProducts({
   onlyOnSale = false,
   searchQuery = null,
 } = {}) {
-  const conditions = [];
-  const values = [];
-
-  //  Filters
-
-  if (onlySpecialProducts) {
-    conditions.push("p.is_on_special_list IS TRUE");
-  }
-
-  if (categoryIds && categoryIds.length > 0) {
-    values.push(categoryIds);
-    conditions.push(`p.category_id = ANY($${values.length}::int[])`);
-  }
-
-  if (onlyOnSale) {
-    conditions.push(
-      "p.original_price IS NOT NULL AND p.price < p.original_price",
-    );
-  }
-
-  if (searchQuery) {
-    values.push(`%${searchQuery}%`);
-    conditions.push(`p.name ILIKE $${values.length}`);
-  }
-
-  const whereClause =
-    conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
-
-  //  Sorting
-
-  let orderBy = "";
-
-  switch (sort) {
-    case "price-asc":
-      orderBy = "ORDER BY p.price ASC";
-      break;
-
-    case "price-desc":
-      orderBy = "ORDER BY p.price DESC";
-      break;
-
-    case "oldest":
-      orderBy = "ORDER BY p.created_at ASC";
-      break;
-
-    case "newest":
-    default:
-      orderBy = "ORDER BY p.created_at DESC";
-      break;
-  }
-
-  //  Count Query
-
-  const countValues = [...values];
-
-  const countSql = `
-    SELECT COUNT(*) AS total
-    FROM products p
-    ${whereClause}
-  `;
-
-  //  Pagination
+  const supabase = await createClient();
 
   const limit = 16;
   const offset = (page - 1) * limit;
 
-  values.push(limit);
-  const limitIndex = values.length;
-
-  values.push(offset);
-  const offsetIndex = values.length;
-
-  //  Products Query
-
-  const productsSql = `
-  SELECT
-    p.id,
-    p.name,
-    p.original_price,
-    p.price,
-    p.slug,
-    p.is_on_special_list,
-    pi.url AS thumbnail,
-
-    COALESCE(
-      json_agg(
-        json_build_object(
-          'id', pv.id,
-          'color', pv.color,
-          'size', pv.size,
-          'description', pv.description,
-          'stock', pv.stock
+  let query = supabase.from("products").select(
+    `
+        id,
+        name,
+        original_price,
+        price,
+        slug,
+        is_on_special_list,
+        product_images!left (
+          url,
+          is_thumbnail
+        ),
+        product_variants!left (
+          id,
+          color,
+          size,
+          description,
+          stock,
+          deleted_at
         )
-      ) FILTER (WHERE pv.id IS NOT NULL),
-      '[]'
-    ) AS variants
+      `,
+    { count: "exact" },
+  );
 
-  FROM products p
+  // Filters
+  if (onlySpecialProducts) {
+    query = query.eq("is_on_special_list", true);
+  }
 
-  LEFT JOIN product_images pi
-    ON p.id = pi.product_id
-    AND pi.is_thumbnail = TRUE
+  if (categoryIds?.length > 0) {
+    query = query.in("category_id", categoryIds);
+  }
 
-  LEFT JOIN product_variants pv
-    ON p.id = pv.product_id
-    AND pv.deleted_at IS NULL
+  if (onlyOnSale) {
+    query = query
+      .not("original_price", "is", null)
+      .lt("price", "original_price");
+  }
 
-  ${whereClause}
+  if (searchQuery) {
+    query = query.ilike("name", `%${searchQuery}%`);
+  }
 
-  GROUP BY
-    p.id,
-    pi.url
+  // Sorting
+  switch (sort) {
+    case "price-asc":
+      query = query.order("price", { ascending: true });
+      break;
 
-  ${orderBy}
+    case "price-desc":
+      query = query.order("price", { ascending: false });
+      break;
 
-  LIMIT $${limitIndex}
-  OFFSET $${offsetIndex}
-`;
+    case "oldest":
+      query = query.order("created_at", { ascending: true });
+      break;
 
-  // ---------------- Execute ----------------
+    case "newest":
+    default:
+      query = query.order("created_at", { ascending: false });
+      break;
+  }
 
-  const [productsResult, countResult] = await Promise.all([
-    query(productsSql, values),
-    query(countSql, countValues),
-  ]);
+  // Pagination
+  query = query.range(offset, offset + limit - 1);
 
-  const totalItems = Number(countResult.rows[0].total);
+  const { data, error, count } = await query;
 
+  if (error) {
+    throw error;
+  }
+
+  const products = data.map((product) => ({
+    ...product,
+
+    thumbnail:
+      product.product_images?.find((image) => image.is_thumbnail)?.url ?? null,
+
+    variants:
+      product.product_variants
+        ?.filter((variant) => variant.deleted_at === null)
+        .map(({ deleted_at, ...variant }) => variant) ?? [],
+  }));
+
+  const totalItems = count ?? 0;
   const totalPages = Math.max(1, Math.ceil(totalItems / limit));
 
   return {
-    products: productsResult.rows,
+    products,
     totalItems,
     totalPages,
     currentPage: Number(page),

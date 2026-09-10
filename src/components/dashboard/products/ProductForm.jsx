@@ -8,7 +8,6 @@ import {
   Box,
   Button,
   Checkbox,
-  Divider,
   FormControlLabel,
   IconButton,
   MenuItem,
@@ -346,7 +345,7 @@ export default function ProductForm({
               onChange={(event) => setPrice(event.target.value)}
               required
               fullWidth
-              inputProps={{
+              inputprops={{
                 min: 0,
               }}
             />
@@ -357,7 +356,7 @@ export default function ProductForm({
               value={originalPrice}
               onChange={(event) => setOriginalPrice(event.target.value)}
               fullWidth
-              inputProps={{
+              inputprops={{
                 min: 0,
               }}
             />
@@ -455,7 +454,7 @@ export default function ProductForm({
           {images.length === 0 ? (
             <Typography
               color="text.secondary"
-              textAlign="center"
+              textalign="center"
               sx={{ py: 5 }}
             >
               هنوز تصویری اضافه نشده است.
@@ -557,11 +556,7 @@ export default function ProductForm({
 
           <Stack spacing={2}>
             {variants.length === 0 && (
-              <Typography
-                color="text.secondary"
-                textAlign="center"
-                sx={{ py: 4 }}
-              >
+              <Typography color="text.secondary" a="center" sx={{ py: 4 }}>
                 هنوز تنوعی برای محصول ثبت نشده است.
               </Typography>
             )}
@@ -616,7 +611,7 @@ export default function ProductForm({
                         Number(event.target.value),
                       )
                     }
-                    inputProps={{
+                    inputprops={{
                       min: 0,
                     }}
                     sx={{

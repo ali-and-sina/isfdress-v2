@@ -1,4 +1,4 @@
-import { query } from "./db";
+import { createClient } from "@/lib/supabase/server";
 
 export async function getProducts({
   page = 1,
@@ -8,128 +8,118 @@ export async function getProducts({
   onlyOnSale = false,
   searchQuery = null,
 } = {}) {
-  const conditions = ["p.deleted_at IS NULL"];
-  const values = [];
-
-  //  Filters
-
-  if (onlySpecialProducts) {
-    conditions.push("p.is_on_special_list IS TRUE");
-  }
-
-  if (categoryIds && categoryIds.length > 0) {
-    values.push(categoryIds);
-    conditions.push(`p.category_id = ANY($${values.length}::int[])`);
-  }
-
-  if (onlyOnSale) {
-    conditions.push(
-      "p.original_price IS NOT NULL AND p.price < p.original_price",
-    );
-  }
-
-  if (searchQuery) {
-    values.push(`%${searchQuery}%`);
-    conditions.push(`p.name ILIKE $${values.length}`);
-  }
-
-  const whereClause =
-    conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
-
-  //  Sorting
-
-  let orderBy = "";
-
-  switch (sort) {
-    case "price-asc":
-      orderBy = "ORDER BY p.price ASC";
-      break;
-
-    case "price-desc":
-      orderBy = "ORDER BY p.price DESC";
-      break;
-
-    case "oldest":
-      orderBy = "ORDER BY p.created_at ASC";
-      break;
-
-    case "newest":
-    default:
-      orderBy = "ORDER BY p.created_at DESC";
-      break;
-  }
-
-  //  Count Query
-
-  const countValues = [...values];
-
-  const countSql = `
-    SELECT COUNT(*) AS total
-    FROM products p
-    ${whereClause}
-  `;
-
-  //  Pagination
+  const supabase = await createClient();
 
   const limit = 16;
   const offset = (page - 1) * limit;
 
-  values.push(limit);
-  const limitIndex = values.length;
+  let query = supabase
+    .from("products")
+    .select(
+      `
+        id,
+        name,
+        original_price,
+        price,
+        slug,
+        is_on_special_list,
+        created_at,
+        product_images (
+          url,
+          is_thumbnail
+        ),
+        product_variants (
+          stock,
+          deleted_at
+        )
+      `,
+      { count: "exact" },
+    )
+    .is("deleted_at", null);
 
-  values.push(offset);
-  const offsetIndex = values.length;
+  // Filters
+  if (onlySpecialProducts) {
+    query = query.eq("is_on_special_list", true);
+  }
 
-  //  Products Query
+  if (categoryIds?.length > 0) {
+    query = query.in("category_id", categoryIds);
+  }
 
-  const productsSql = `
-    SELECT
-      p.id,
-      p.name,
-      p.original_price,
-      p.price,
-      p.slug,
-      p.is_on_special_list,
-      pi.url AS thumbnail,
-      COALESCE(pv.total_stock, 0) AS stock,
-      COALESCE(pv.total_stock, 0) > 0 AS "inStock"
+  if (searchQuery) {
+    query = query.ilike("name", `%${searchQuery}%`);
+  }
 
-    FROM products p
+  // Sorting
+  switch (sort) {
+    case "price-asc":
+      query = query.order("price", { ascending: true });
+      break;
 
-    LEFT JOIN product_images pi
-    ON p.id = pi.product_id
-    AND pi.is_thumbnail = TRUE
+    case "price-desc":
+      query = query.order("price", { ascending: false });
+      break;
 
-   LEFT JOIN (
-    SELECT
-    product_id,
-    SUM(stock) AS total_stock
-    FROM product_variants
-    WHERE deleted_at IS NULL
-    GROUP BY product_id)
-    pv ON pv.product_id = p.id
+    case "oldest":
+      query = query.order("created_at", { ascending: true });
+      break;
 
-    ${whereClause}
+    case "newest":
+    default:
+      query = query.order("created_at", { ascending: false });
+      break;
+  }
 
-    ${orderBy}
+  query = query.range(offset, offset + limit - 1);
 
-    LIMIT $${limitIndex}
-    OFFSET $${offsetIndex}
-  `;
+  const { data, error, count } = await query;
 
-  // ---------------- Execute ----------------
+  if (error) {
+    throw error;
+  }
 
-  const [productsResult, countResult] = await Promise.all([
-    query(productsSql, values),
-    query(countSql, countValues),
-  ]);
+  let products = data.map((product) => {
+    const activeVariants =
+      product.product_variants?.filter(
+        (variant) => variant.deleted_at === null,
+      ) ?? [];
 
-  const totalItems = Number(countResult.rows[0].total);
+    const stock = activeVariants.reduce(
+      (total, variant) => total + Number(variant.stock || 0),
+      0,
+    );
 
+    return {
+      id: product.id,
+      name: product.name,
+      original_price: product.original_price,
+      price: product.price,
+      slug: product.slug,
+      is_on_special_list: product.is_on_special_list,
+
+      thumbnail:
+        product.product_images?.find((image) => image.is_thumbnail)?.url ??
+        null,
+
+      stock,
+      inStock: stock > 0,
+    };
+  });
+
+  // onlyOnSale
+  if (onlyOnSale) {
+    products = products.filter(
+      (product) =>
+        product.original_price !== null &&
+        Number(product.price) < Number(product.original_price),
+    );
+  }
+
+  const totalItems = count ?? 0;
   const totalPages = Math.max(1, Math.ceil(totalItems / limit));
 
   return {
-    products: productsResult.rows,
+    products,
     totalItems,
     totalPages,
     currentPage: Number(page),

@@ -1,94 +1,103 @@
-import { query } from "./db";
+import { createClient } from "@/lib/supabase/server";
 import { unstable_cache } from "next/cache";
+import { createPublicClient } from "./supabase/public";
 
 export async function getCategoryBySlug(slug) {
-  const { rows } = await query(
-    `SELECT id, name, slug, description, image_url
-     FROM categories
-     WHERE slug = $1 AND parent_id IS NULL`,
-    [slug],
-  );
-  return rows[0] || null;
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("categories")
+    .select("id, name, slug, description, image_url")
+    .eq("slug", slug)
+    .is("parent_id", null)
+    .maybeSingle();
+
+  if (error) throw error;
+
+  return data;
 }
 
 export async function getSubCategories(parentId) {
-  const { rows } = await query(
-    `SELECT id, name, slug, description
-     FROM categories
-     WHERE parent_id = $1
-     ORDER BY id ASC`,
-    [parentId],
-  );
-  return rows;
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("categories")
+    .select("id, name, slug, description")
+    .eq("parent_id", parentId)
+    .order("id", { ascending: true });
+
+  if (error) throw error;
+
+  return data;
 }
 
 export async function getCategoryById(id) {
-  const { rows } = await query(
-    `
-      SELECT
-        id,
-        name,
-        slug,
-        description,
-        image_url,
-        parent_id
-      FROM categories
-      WHERE id = $1
-    `,
-    [id],
-  );
+  const supabase = await createClient();
 
-  return rows[0] || null;
+  const { data, error } = await supabase
+    .from("categories")
+    .select("id, name, slug, description, image_url, parent_id")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error) throw error;
+
+  return data;
 }
 
 export async function getSubCategoryBySlug(parentId, slug) {
-  const { rows } = await query(
-    `SELECT id, name, slug, description
-     FROM categories
-     WHERE parent_id = $1 AND slug = $2`,
-    [parentId, slug],
-  );
-  return rows[0] || null;
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("categories")
+    .select("id, name, slug, description")
+    .eq("parent_id", parentId)
+    .eq("slug", slug)
+    .maybeSingle();
+
+  if (error) throw error;
+
+  return data;
 }
+
 export async function getNavCategories() {
-  const { rows } = await query(`
-      SELECT
-        c.id,
-        c.name,
-        c.slug,
-        sc.id AS sub_id,
-        sc.name AS sub_name,
-        sc.slug AS sub_slug
-      FROM categories c
-      LEFT JOIN categories sc ON sc.parent_id = c.id
-      WHERE c.parent_id IS NULL
-      ORDER BY c.id, sc.id
-    `);
+  const supabase = createPublicClient();
 
-  const map = new Map();
+  const { data, error } = await supabase
+    .from("categories")
+    .select(
+      `
+      id,
+      name,
+      slug,
+      subcategories:categories!parent_id (
+        id,
+        name,
+        slug
+      )
+    `,
+    )
+    .is("parent_id", null)
+    .order("id", { ascending: true });
 
-  for (const row of rows) {
-    if (!map.has(row.id)) {
-      map.set(row.id, {
-        id: row.id,
-        title: row.name,
-        slug: `/productCategory/${row.slug}`,
-        categorySlug: row.slug,
-        megaMenuItems: [],
-      });
-    }
-    if (row.sub_id) {
-      map.get(row.id).megaMenuItems.push({
-        id: row.sub_id,
-        name: row.sub_name,
-        slug: row.sub_slug,
-        categorySlug: row.slug,
-      });
-    }
-  }
+  if (error) throw error;
 
-  return Array.from(map.values());
+  return data.map((category) => ({
+    id: category.id,
+    title: category.name,
+    slug: `/productCategory/${category.slug}`,
+    categorySlug: category.slug,
+    megaMenuItems: (category.subcategories || [])
+      .sort((a, b) => a.id - b.id)
+      .map((sub) => ({
+        id: sub.id,
+        name: sub.name,
+        slug: sub.slug,
+        categorySlug: category.slug,
+      })),
+  }));
 }
+
 export const getNavCategoriesCached = unstable_cache(
   getNavCategories,
   ["nav-categories"],
@@ -96,52 +105,77 @@ export const getNavCategoriesCached = unstable_cache(
 );
 
 export async function getCategories() {
-  const { rows } = await query(`
-    SELECT
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("categories")
+    .select(
+      `
       id,
       name,
       slug,
       description,
       image_url,
       parent_id
-    FROM categories
-    ORDER BY id ASC
-  `);
+    `,
+    )
+    .order("id", { ascending: true });
 
-  return rows;
+  if (error) throw error;
+
+  return data;
 }
 
 export async function getCategoryPathByLeafId(leafId) {
-  const { rows } = await query(
-    `SELECT
-       leaf.id AS leaf_id, leaf.name AS leaf_name, leaf.slug AS leaf_slug,
-       parent.id AS parent_id, parent.name AS parent_name, parent.slug AS parent_slug
-     FROM categories leaf
-     LEFT JOIN categories parent ON parent.id = leaf.parent_id
-     WHERE leaf.id = $1`,
-    [leafId],
-  );
+  const supabase = await createClient();
 
-  const row = rows[0];
-  if (!row) return { category: null, subCategory: null };
+  const { data, error } = await supabase
+    .from("categories")
+    .select(
+      `
+      id,
+      name,
+      slug,
+      parent:categories!parent_id (
+        id,
+        name,
+        slug
+      )
+    `,
+    )
+    .eq("id", leafId)
+    .maybeSingle();
 
-  if (row.parent_id) {
+  if (error) throw error;
+
+  if (!data) {
+    return {
+      category: null,
+      subCategory: null,
+    };
+  }
+
+  if (data.parent) {
     return {
       category: {
-        id: row.parent_id,
-        name: row.parent_name,
-        slug: row.parent_slug,
+        id: data.parent.id,
+        name: data.parent.name,
+        slug: data.parent.slug,
       },
       subCategory: {
-        id: row.leaf_id,
-        name: row.leaf_name,
-        slug: row.leaf_slug,
+        id: data.id,
+        name: data.name,
+        slug: data.slug,
       },
     };
   }
 
   return {
-    category: { id: row.leaf_id, name: row.leaf_name, slug: row.leaf_slug },
+    category: {
+      id: data.id,
+      name: data.name,
+      slug: data.slug,
+    },
     subCategory: null,
   };
 }

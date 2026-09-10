@@ -6,7 +6,7 @@ import DesktopNav from "./DesktopNav";
 import MobileDrawer from "./MobileDrawer";
 import MobileNav from "./MobileNav";
 
-export default function Navbar({ categories }) {
+export default function Navbar({ categories, user }) {
   const [activeMegaMenu, setActiveMegaMenu] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -16,10 +16,12 @@ export default function Navbar({ categories }) {
         categories={categories}
         activeMegaMenu={activeMegaMenu}
         setActiveMegaMenu={setActiveMegaMenu}
+        user={user}
       />
       <MobileNav openDrawer={() => setMobileMenuOpen(true)} />
       <MobileDrawer
         categories={categories}
+        user={user}
         mobileMenuOpen={mobileMenuOpen}
         closeDrawer={() => setMobileMenuOpen(false)}
       />

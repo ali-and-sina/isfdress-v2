@@ -5,9 +5,11 @@ import MegaMenu from "./MegaMenu";
 
 import Logo from "./Logo";
 import SearchBar from "./SearchBar";
+import { ShoppingCart } from "lucide-react";
 
 export default function DesktopNav({
   categories,
+  user,
   activeMegaMenu,
   setActiveMegaMenu,
 }) {
@@ -26,11 +28,25 @@ export default function DesktopNav({
 
         {/* Push left section away */}
         <div className="mr-auto flex items-center gap-3">
-          <div>🛒</div>
+          <Link href="/cart">
+            <ShoppingCart />
+          </Link>
 
-          <button className="rounded-xl bg-rose-600 px-4 py-2 text-white">
-            ورود / ثبت نام
-          </button>
+          {!user ? (
+            <Link
+              href="login"
+              className="rounded-xl bg-rose-600 px-4 py-2 text-white"
+            >
+              ورود / ثبت نام
+            </Link>
+          ) : (
+            <Link
+              href="api/auth/signout"
+              className="rounded-xl bg-rose-600 px-4 py-2 text-white"
+            >
+              خروج از حساب کاربری
+            </Link>
+          )}
         </div>
       </div>
 

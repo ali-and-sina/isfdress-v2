@@ -1,5 +1,5 @@
 import OrdersClient from "@/components/dashboard/orders/OrdersClient";
-import { getOrders } from "@/lib/orders";
+import { getOrders } from "@/lib/getOrders";
 
 export default async function OrdersPage() {
   const orders = await getOrders();

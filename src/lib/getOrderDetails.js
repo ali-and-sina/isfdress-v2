@@ -1,58 +1,81 @@
-import { query } from "./db";
+import { createClient } from "@/lib/supabase/server";
 
 export async function getOrderDetails(orderId) {
-  const orderSql = `
-    SELECT
-      o.id,
-      o.status,
-      o.total_price,
-      o.created_at,
-      o.updated_at,
-      u.id    AS user_id,
-      u.name  AS user_name,
-      u.email AS user_email
-    FROM orders o
-    JOIN users u ON u.id = o.user_id
-    WHERE o.id = $1
-  `;
+  const supabase = await createClient();
 
-  const itemsSql = `
-    SELECT
-      oi.id AS order_item_id,
-      oi.quantity,
-      oi.unit_price,
+  const { data, error } = await supabase
+    .from("orders")
+    .select(
+      `
+      id,
+      status,
+      total_price,
+      created_at,
+      updated_at,
+      user:users (
+        id,
+        name,
+        email
+      ),
+      order_items (
+        id,
+        quantity,
+        unit_price,
+        product:products (
+          id,
+          name,
+          slug,
+          price,
+          product_images (
+            url,
+            is_thumbnail
+          )
+        ),
+        variant:product_variants (
+          color,
+          size
+        )
+      )
+    `,
+    )
+    .eq("id", orderId)
+    .maybeSingle();
 
-      p.id    AS product_id,
-      p.name  AS product_name,
-      p.slug  AS product_slug,
-      p.price AS current_price,
+  if (error) {
+    throw error;
+  }
 
-      pi.url AS thumbnail,
-
-      pv.color,
-      pv.size
-
-    FROM order_items oi
-    JOIN products p ON p.id = oi.product_id
-    LEFT JOIN product_variants pv ON pv.id = oi.variant_id
-    LEFT JOIN product_images pi
-      ON pi.product_id = p.id
-      AND pi.is_thumbnail = TRUE
-
-    WHERE oi.order_id = $1
-  `;
-
-  const [orderResult, itemsResult] = await Promise.all([
-    query(orderSql, [orderId]),
-    query(itemsSql, [orderId]),
-  ]);
-
-  const order = orderResult.rows[0];
-
-  if (!order) return null;
+  if (!data) {
+    return null;
+  }
 
   return {
-    ...order,
-    items: itemsResult.rows,
+    id: data.id,
+    status: data.status,
+    total_price: data.total_price,
+    created_at: data.created_at,
+    updated_at: data.updated_at,
+
+    user_id: data.user?.id ?? null,
+    user_name: data.user?.name ?? null,
+    user_email: data.user?.email ?? null,
+
+    items: data.order_items.map((item) => ({
+      order_item_id: item.id,
+      quantity: item.quantity,
+      unit_price: item.unit_price,
+
+      product_id: item.product?.id ?? null,
+      product_name: item.product?.name ?? null,
+      product_slug: item.product?.slug ?? null,
+      current_price: item.product?.price ?? null,
+
+      thumbnail:
+        item.product?.product_images?.find((image) => image.is_thumbnail)
+          ?.url ?? null,
+
+      color: item.variant?.color ?? null,
+      size: item.variant?.size ?? null,
+    })),
   };
 }

@@ -2,6 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Button } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
 
 import {
   Avatar,
@@ -61,7 +63,7 @@ export default function ProductsClient({ initialProducts, totalItems }) {
         return (
           <Stack
             direction="row"
-            alignItems="center"
+            alignitems="center"
             spacing={1.5}
             sx={{ height: "100%" }}
           >
@@ -158,7 +160,9 @@ export default function ProductsClient({ initialProducts, totalItems }) {
         <Stack direction="row">
           <Tooltip title="ویرایش">
             <IconButton
-              onClick={() => router.push(`/admin/products/${params.row.id}`)}
+              onClick={() =>
+                router.push(`/admin/dashboard/products/${params.row.id}`)
+              }
             >
               <EditOutlinedIcon />
             </IconButton>
@@ -166,7 +170,9 @@ export default function ProductsClient({ initialProducts, totalItems }) {
 
           <Tooltip title="مشاهده">
             <IconButton
-              onClick={() => router.push(`/admin/products/${params.row.id}`)}
+              onClick={() =>
+                router.push(`/admin/dashboard/products/${params.row.id}`)
+              }
             >
               <VisibilityOutlinedIcon />
             </IconButton>
@@ -197,24 +203,32 @@ export default function ProductsClient({ initialProducts, totalItems }) {
           borderRadius: 3,
         }}
       >
-        <Stack direction="row" justifyContent="space-between" sx={{ mb: 2 }}>
-          <TextField
-            size="small"
-            label="جستجوی محصول"
-            placeholder="نام، اسلاگ یا شناسه..."
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            sx={{ width: 320 }}
-          />
+        <Stack
+          direction="row"
+          justifyContent="space-between"
+          alignitems="center"
+          sx={{ mb: 2 }}
+        >
+          <Stack direction="row" spacing={1.5} alignitems="center">
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={() => router.push("/admin/dashboard/products/new")}
+            >
+              محصول جدید
+            </Button>
 
-          <Typography
-            variant="body2"
-            color="text.secondary"
-            sx={{
-              display: "flex",
-              alignItems: "center",
-            }}
-          >
+            <TextField
+              size="small"
+              label="جستجوی محصول"
+              placeholder="نام، اسلاگ یا شناسه..."
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              sx={{ width: 320 }}
+            />
+          </Stack>
+
+          <Typography variant="body2" color="text.secondary">
             {Number(totalItems).toLocaleString("fa-IR")} محصول
           </Typography>
         </Stack>

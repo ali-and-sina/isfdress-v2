@@ -1,57 +1,85 @@
-import { query } from "./db";
+import { createClient } from "@/lib/supabase/server";
 
 export async function getOrdersByUserId(userId) {
-  const ordersSql = `
-    SELECT
+  const supabase = await createClient();
+
+  const { data: orders, error: ordersError } = await supabase
+    .from("orders")
+    .select(
+      `
       id,
       status,
       total_price,
       created_at,
       updated_at
-    FROM orders
-    WHERE user_id = $1
-    ORDER BY created_at DESC
-  `;
+    `,
+    )
+    .eq("user_id", userId)
+    .order("created_at", { ascending: false });
 
-  const { rows: orders } = await query(ordersSql, [userId]);
+  if (ordersError) {
+    throw ordersError;
+  }
 
   if (orders.length === 0) return [];
 
-  const orderIds = orders.map((o) => o.id);
+  const orderIds = orders.map((order) => order.id);
 
-  const itemsSql = `
-    SELECT
-      oi.order_id,
-      oi.id AS order_item_id,
-      oi.quantity,
-      oi.unit_price,
+  const { data: items, error: itemsError } = await supabase
+    .from("order_items")
+    .select(
+      `
+      order_id,
+      id,
+      quantity,
+      unit_price,
+      product:products (
+        id,
+        name,
+        slug,
+        price,
+        product_images (
+          url,
+          is_thumbnail
+        )
+      ),
+      variant:product_variants (
+        color,
+        size
+      )
+    `,
+    )
+    .in("order_id", orderIds);
 
-      p.id    AS product_id,
-      p.name  AS product_name,
-      p.slug  AS product_slug,
-      p.price AS current_price,
-
-      pi.url AS thumbnail,
-
-      pv.color,
-      pv.size
-
-    FROM order_items oi
-    JOIN products p ON p.id = oi.product_id
-    LEFT JOIN product_variants pv ON pv.id = oi.variant_id
-    LEFT JOIN product_images pi
-      ON pi.product_id = p.id
-      AND pi.is_thumbnail = TRUE
-
-    WHERE oi.order_id = ANY($1::int[])
-  `;
-
-  const { rows: items } = await query(itemsSql, [orderIds]);
+  if (itemsError) {
+    throw itemsError;
+  }
 
   const itemsByOrder = {};
+
   for (const item of items) {
-    if (!itemsByOrder[item.order_id]) itemsByOrder[item.order_id] = [];
-    itemsByOrder[item.order_id].push(item);
+    if (!itemsByOrder[item.order_id]) {
+      itemsByOrder[item.order_id] = [];
+    }
+
+    itemsByOrder[item.order_id].push({
+      order_id: item.order_id,
+      order_item_id: item.id,
+      quantity: item.quantity,
+      unit_price: item.unit_price,
+
+      product_id: item.product?.id ?? null,
+      product_name: item.product?.name ?? null,
+      product_slug: item.product?.slug ?? null,
+      current_price: item.product?.price ?? null,
+
+      thumbnail:
+        item.product?.product_images?.find((image) => image.is_thumbnail)
+          ?.url ?? null,
+
+      color: item.variant?.color ?? null,
+      size: item.variant?.size ?? null,
+    });
   }
 
   return orders.map((order) => ({

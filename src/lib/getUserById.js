@@ -1,20 +1,27 @@
-import { query } from "./db";
+import { createClient } from "@/lib/supabase/server";
 
 export async function getUserById(id) {
-  const sql = `
-    SELECT
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("users")
+    .select(
+      `
       id,
       email,
       name,
       avatar_url,
       created_at,
       updated_at
-    FROM users
-    WHERE id = $1
-      AND deleted_at IS NULL
-  `;
+    `,
+    )
+    .eq("id", id)
+    .is("deleted_at", null)
+    .maybeSingle();
 
-  const { rows } = await query(sql, [id]);
+  if (error) {
+    throw error;
+  }
 
-  return rows[0] || null;
+  return data;
 }
