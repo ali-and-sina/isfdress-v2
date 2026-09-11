@@ -2,13 +2,13 @@ import { notFound } from "next/navigation";
 
 import { getCategories } from "@/lib/categories";
 import ProductForm from "@/components/dashboard/products/ProductForm";
-import { getProduct } from "@/lib/getProduct";
+import { getProductById } from "@/lib/getProduct";
 
 export default async function EditProductPage({ params }) {
   const { id } = await params;
 
   const [product, categories] = await Promise.all([
-    getProduct(id),
+    getProductById(id),
     getCategories(),
   ]);
   console.log(product);

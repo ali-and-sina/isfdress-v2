@@ -24,6 +24,7 @@ function AsideCartInfo({ handlePayment, isPaying, children }) {
               <Image
                 src={item.images[0]}
                 alt={item.name}
+                unoptimized
                 fill
                 className="object-cover"
                 sizes="48px"

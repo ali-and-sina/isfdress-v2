@@ -84,7 +84,7 @@ export default function OrdersClient({ orders }) {
     }
 
     return filteredOrders;
-  }, [search, status]);
+  }, [search, status, orders]);
 
   function handleDelete(ids) {
     setToast({

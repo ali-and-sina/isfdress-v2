@@ -43,8 +43,7 @@ export default function ProductDetails({
   const { addToCart, items, incrementItem, decrementItem, removeFromCart } =
     useCart();
   const item = items ? items.find((item) => item.id === product.id) : null;
-
-  console.table(product);
+  console.log(product);
 
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedSize, setSelectedSize] = useState(null);
@@ -177,9 +176,10 @@ export default function ProductDetails({
               onClick={() => openGallery(selectedImage)}
             >
               <Image
-                src={product.images[selectedImage]}
+                src={product.images[0]}
                 alt={product.name}
                 fill
+                unoptimized
                 className="object-cover transition-transform duration-300 hover:scale-[1.02]"
                 sizes="(max-width: 1024px) 100vw, 50vw"
                 priority
@@ -237,9 +237,10 @@ export default function ProductDetails({
                     src={img}
                     alt={`${product.name} ${index + 1}`}
                     fill
+                    unoptimized
                     className="object-cover"
                     sizes="80px"
-                    loading="lazy"
+                    loading="eager"
                   />
                 </button>
               ))}

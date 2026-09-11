@@ -4,16 +4,11 @@ import { Autoplay, Pagination } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/pagination";
 import Image from "next/image";
-import { products } from "@/data/products";
 import Link from "next/link";
+import { formatPrice } from "@/lib/products";
 
-const formatPrice = (price) => {
-  return new Intl.NumberFormat("fa-IR").format(price) + " تومان";
-};
-
-const featuredProducts = products.filter((p) => p.isNew);
-
-export default function HeroSlider() {
+export default function HeroSlider({ products }) {
+  const featuredProducts = products.filter((p) => p.is_on_special_list);
   return (
     <header className="relative w-full h-[80vh] overflow-hidden bg-neutral-100">
       <Swiper
@@ -28,8 +23,9 @@ export default function HeroSlider() {
           <SwiperSlide key={product.id}>
             <div className="relative w-full h-full group">
               <Image
-                src={product.images[0]}
+                src={product.thumbnail}
                 alt={product.name}
+                unoptimized
                 fill
                 className="object-cover transition-transform duration-700 group-hover:scale-105"
                 priority

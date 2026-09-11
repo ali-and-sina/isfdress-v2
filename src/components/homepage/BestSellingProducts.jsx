@@ -2,15 +2,10 @@
 import { useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { products } from "@/data/products";
+import { formatPrice } from "@/lib/products";
 
-const formatPrice = (price) => {
-  return new Intl.NumberFormat("fa-IR").format(price) + " تومان";
-};
-
-const bestSellers = products.slice(0, 8);
-
-export default function BestSellingProducts() {
+export default function BestSellingProducts({ products }) {
+  const bestSellers = products.slice(0, 8);
   const scrollRef = useRef(null);
 
   const scroll = (direction) => {
@@ -86,13 +81,14 @@ export default function BestSellingProducts() {
             <Link
               key={product.id}
               href={`/product/${product.slug}`}
-              className="group flex-shrink-0 w-[260px] md:w-[300px] snap-start"
+              className="group shrink-0 w-65 md:w-75 snap-start"
             >
-              <div className="relative aspect-[3/4] overflow-hidden rounded-2xl bg-[#fdf6f0]">
+              <div className="relative aspect-3/4 overflow-hidden rounded-2xl bg-[#fdf6f0]">
                 <Image
-                  src={product.images[0]}
+                  src={product.thumbnail}
                   alt={product.name}
                   fill
+                  unoptimized
                   className="object-cover transition-transform duration-700 group-hover:scale-105"
                   sizes="300px"
                 />
@@ -111,7 +107,7 @@ export default function BestSellingProducts() {
                     تخفیف
                   </div>
                 )}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#f8ece0]/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl" />
+                <div className="absolute inset-0 bg-linear-to-t from-[#f8ece0]/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-2xl" />
               </div>
 
               <div className="mt-4 space-y-1.5">

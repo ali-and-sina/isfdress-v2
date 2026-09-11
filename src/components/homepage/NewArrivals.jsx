@@ -1,14 +1,9 @@
+import { formatPrice } from "@/lib/products";
 import Image from "next/image";
 import Link from "next/link";
-import { products } from "@/data/products";
 
-const formatPrice = (price) => {
-  return new Intl.NumberFormat("fa-IR").format(price) + " تومان";
-};
-
-const newArrivals = products.filter((p) => p.isNew).slice(0, 4);
-
-export default function NewArrivals() {
+export default function NewArrivals({ products }) {
+  const newArrivals = products.filter((p) => p.isNew).slice(0, 4);
   return (
     <section className="py-16 px-4 md:px-8 lg:px-16 max-w-7xl mx-auto">
       <div className="flex items-center justify-between mb-10">
@@ -40,7 +35,7 @@ export default function NewArrivals() {
               <div className="absolute top-3 left-3 bg-[#f0d5c1] text-neutral-700 text-xs px-3 py-1.5 rounded-full">
                 جدید
               </div>
-              <div className="absolute inset-0 bg-gradient-to-t from-[#f8ece0]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="absolute inset-0 bg-linear-to-t from-[#f8ece0]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             </div>
             <div className="mt-4 space-y-1">
               <h3 className="text-sm md:text-base font-medium text-neutral-700 line-clamp-1">

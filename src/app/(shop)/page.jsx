@@ -5,18 +5,21 @@ import BestSellingProducts from "@/components/homepage/BestSellingProducts";
 import SliderHero from "@/components/homepage/SliderHero";
 import SpecialOffer from "@/components/homepage/SpecialOffer";
 import TrustBadges from "@/components/homepage/TrustBadges";
+import { getProducts } from "@/lib/getProducts";
 
-export default function HomePage() {
+export default async function HomePage() {
+  const products = await getProducts();
+  console.log(products.products);
   return (
     <div>
       <header>
-        <SliderHero />
+        <SliderHero products={products.products} />
       </header>
       <main>
         <SpecialOffer />
-        <BestSellingProducts />
-        <NewArrivals />
-        <FeaturedCategories />
+        <BestSellingProducts products={products.products} />
+        <NewArrivals products={products.products} />
+        <FeaturedCategories products={products} />
         <TrustBadges />
         <Newsletter />
       </main>
