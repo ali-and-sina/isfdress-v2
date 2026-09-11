@@ -1,5 +1,7 @@
-function page() {
-  return <div>علی و سینا این سایت رو زدن.</div>;
+export default function AboutPage() {
+  return (
+    <main>
+      <h1>علی و سینا این سایت رو زدن</h1>
+    </main>
+  );
 }
-
-export default page;
