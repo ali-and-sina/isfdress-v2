@@ -18,7 +18,7 @@ export default function Navbar({ categories, user }) {
         setActiveMegaMenu={setActiveMegaMenu}
         user={user}
       />
-      <MobileNav openDrawer={() => setMobileMenuOpen(true)} />
+      <MobileNav openDrawer={() => setMobileMenuOpen(true)} user={user} />
       <MobileDrawer
         categories={categories}
         user={user}
